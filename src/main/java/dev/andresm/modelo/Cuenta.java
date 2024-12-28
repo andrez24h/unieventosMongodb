@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString
 
+    // Clase sin Constructor con los todos los atributos.
+    // En el Builder no está el id, yá que este código es autogenerado por la bd.
+    // Estado de la Cuenta es inicializado INACTIVO
 public class Cuenta implements Serializable {
 
     @Id
@@ -24,9 +26,23 @@ public class Cuenta implements Serializable {
     private CodigoValidacion codigoValidacionPassword;
     private CodigoValidacion codigoValidacionRegistro;
     private String email;
-    private EstadoCuenta estado;
+    private EstadoCuenta estado = EstadoCuenta.INACTIVO;
     private LocalDateTime fechaRegistro;
     private String password;
     private Rol rol;
     private Usuario usuario;
+
+    @Builder
+    public Cuenta(Carrito carrito, CodigoValidacion codigoValidacionPassword, CodigoValidacion codigoValidacionRegistro,
+                  String email, EstadoCuenta estado, LocalDateTime fechaRegistro, String password, Rol rol, Usuario usuario) {
+        this.carrito = carrito;
+        this.codigoValidacionPassword = codigoValidacionPassword;
+        this.codigoValidacionRegistro = codigoValidacionRegistro;
+        this.email = email;
+        this.estado = estado;
+        this.fechaRegistro = fechaRegistro;
+        this.password = password;
+        this.rol = rol;
+        this.usuario = usuario;
+    }
 }
