@@ -20,7 +20,8 @@ public class Cuenta implements Serializable {
 
     @Id
     @EqualsAndHashCode.Include
-    private String id;
+    private String id;  // MongoDB genera automáticamente este valor como un ObjectId y
+                        // Spring Data MongoDB lo convierte a una representación en String.
 
     private Carrito carrito;
     private CodigoValidacion codigoValidacionPassword;
@@ -28,11 +29,13 @@ public class Cuenta implements Serializable {
     private String email;
     private EstadoCuenta estado = EstadoCuenta.INACTIVO;
     private LocalDateTime fechaRegistro;
+
+    @ToString.Exclude
     private String password;
     private Rol rol;
     private Usuario usuario;
 
-    @Builder
+    @Builder(toBuilder = true)
     public Cuenta(Carrito carrito, CodigoValidacion codigoValidacionPassword, CodigoValidacion codigoValidacionRegistro,
                   String email, EstadoCuenta estado, LocalDateTime fechaRegistro, String password, Rol rol, Usuario usuario) {
         this.carrito = carrito;

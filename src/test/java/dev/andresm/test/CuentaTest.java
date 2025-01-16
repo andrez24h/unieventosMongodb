@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,18 +24,19 @@ public class CuentaTest {
     private CuentaRepo cuentaRepo;
 
     @Test
-    public void crearCuentaTest(){
+    public void crearCuentaTest() {
 
         // Se crea el usuario con sus propiedades.
         Usuario usuario = Usuario.builder()
-                .cedula("9738738")
-                .nombre("Andres")
+                .cedula("9740740")
+                .direccion("Armenia")
+                .nombre("Claudia")
                 .telefonos(List.of("3117188224", "7408238"))
                 .build();
 
         // Se crea la cuenta con sus propiedades incluyendo el usuario.
         Cuenta cuenta = Cuenta.builder()
-                .email("amhernandezp@uqvirtual.edu.com")
+                .email("claudia@email.com")
                 .estado(EstadoCuenta.INACTIVO)
                 .fechaRegistro(LocalDateTime.now())
                 .password("12345")
@@ -46,7 +51,7 @@ public class CuentaTest {
         Assertions.assertNotNull(guardada);
 
         // Se verifica que el valor actual sea el mismo que el valor esperado.
-        Assertions.assertEquals("Andres", guardada.getUsuario().getNombre());
+        Assertions.assertEquals("Claudia", guardada.getUsuario().getNombre());
     }
 
     @Test
@@ -92,10 +97,67 @@ public class CuentaTest {
         // Se borra la cuenta con el id de la bd.
         cuentaRepo.deleteById("67708cb94a0e925cca4b7773");
 
-        // Se obtiene la cuenta con el con el id de la bd.
+        // Se obtiene la Cuenta con el con el id de la bd.
         Optional<Cuenta> cuenta = cuentaRepo.findById("67708cb94a0e925cca4b7773");
 
-        // Se verifica que la cuenta no exista (Optional.empty) yá que fue eliminada.
+        // Se verifica que la Cuenta no exista (Optional.empty) yá que fue eliminada.
         Assertions.assertTrue(cuenta.isEmpty());
+    }
+
+    // Métodos de prueba
+
+    // Obtener por correo
+    @Test
+    public void obtenerPorEmail() {
+
+        // Dado el correo se imprime el objeto, se restringe el password en la Cuenta, para que no sea visible.
+        Cuenta cuenta = cuentaRepo.obtenerPorEmail("andrez24h@gmail.com");
+        //cuenta.forEach(System.out::println);
+        System.out.println(cuenta);
+
+        // Se verifica que la cuenta no sea null.
+        Assertions.assertNotNull(cuenta);
+    }
+
+    @Test
+    public void obtenerPorEmail2() {
+
+        Optional<Cuenta> cuenta = cuentaRepo.findByEmail("andrez24h@gmail.com");
+
+        // Se verifica que el Optional contiene un valor
+        Assertions.assertTrue(cuenta.isPresent(), "La cuenta debería estar presente para este email");
+
+        // Imprime el cliente solo si está presente
+        cuenta.ifPresent(System.out::println);
+    }
+
+    @Test
+    public void AutenticacionEmail() {
+
+        Cuenta cuenta = cuentaRepo.AutenticacionEmail("andrez24h@gmail.com", "12345");
+        //cliente.forEach(System.out::println);
+        System.out.println(cuenta);
+
+        // Se verifica que la cuenta no es null.
+        Assertions.assertNotNull(cuenta);
+    }
+
+    @Test
+    public void paginadorEstado() {
+
+        // Cambia el estado por el valor que quieras buscar
+        EstadoCuenta estadoInactivo = EstadoCuenta.INACTIVO;
+        Page<Cuenta> cuentas = cuentaRepo.obtenerPorEstado(estadoInactivo, PageRequest.of(0, 2));
+        cuentas.forEach(System.out::println);
+
+        // Se verifica que la cuenta no es null.
+        Assertions.assertNotNull(cuentas);
+    }
+
+    @Test
+    public void ordenarRegistros() {
+
+        List<Cuenta> cuentas = cuentaRepo.findAll( Sort.by("email") ); // Sort.by("email").descending() );
+        cuentas.forEach(System.out::println);
     }
 }

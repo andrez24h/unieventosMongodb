@@ -9,11 +9,12 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
-@Builder
+@Builder(toBuilder = true)
 
 public class Usuario {
 
     private String cedula;
+    private String direccion;
     private String nombre;
     private List<String> telefonos;
 }
