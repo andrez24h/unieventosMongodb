@@ -43,13 +43,11 @@ public class CuentaServicioImp implements CuentaServicio {
         try {
             // Verificar si el correo ya existe
             if (existeEmail(cuenta.email())) {
-
                 throw new Exception("El correo: " + cuenta.email() + " ya existe");
             }
 
             // Verificar si la cédula ya existe
             if (existeCedula(cuenta.cedula())) {
-
                 throw new Exception("La cédula: " + cuenta.cedula() + " ya existe");
             }
 
@@ -71,17 +69,19 @@ public class CuentaServicioImp implements CuentaServicio {
                     .fechaRegistro(LocalDateTime.now())
                     .password(passwordEncriptada)
                     .rol(Rol.CLIENTE)
-                    .usuario(new Usuario(
-                            cuenta.cedula(),
-                            cuenta.direccion(),
-                            cuenta.nombre(),
-                            cuenta.telefonos()
-                    ))
+                    .usuario(Usuario.builder()
+                            .cedula(cuenta.cedula() )
+                            .direccion(cuenta.direccion() )
+                            .nombre(cuenta.nombre() )
+                            .telefonos(cuenta.telefonos() )
+                            .build()
+                    )
                     .build();
 
             // Enviar correo de activación
             // EmailDTO emailDTO = new EmailDTO(
             EmailDTO emailDTO = EmailDTO.builder()
+
                     .asunto("Su código de activación es: " + codigoValidacionRegistro.getCodigo() )
                     .contenido("Ingrese el código para poder activar su cuenta")
                     .destinatario(cuenta.email() )
@@ -107,23 +107,20 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     private boolean existeEmail(String email) {
-        return cuentaRepo.findByEmail(email).isPresent();
+        return cuentaRepo.buscarEmail(email).isPresent();
     }
 
     private boolean existeCedula(String cedula) {
-
-        return cuentaRepo.buscarId(cedula).isPresent();
+        return cuentaRepo.buscarCedula(cedula).isPresent();
     }
 
     private String encriptarPassword(String password) {
-
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode( password );
     }
 
     @Override
     public String generarCodigo() {
-
         String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         int tam = 10;
         SecureRandom random = new SecureRandom();
@@ -174,45 +171,55 @@ public class CuentaServicioImp implements CuentaServicio {
 
         try {
 
-            // Cuenta cuentaModificada = obtenerCuentaPorId(cuenta.id());
-            // Validar si la cuenta existe en el repositorio
-            Optional<Cuenta> cuentaOptional = cuentaRepo.findById(cuenta.id());
+            // Buscar la cuenta por su ID
+            Optional<Cuenta> optionalCuenta = cuentaRepo.buscarId(cuenta.id());
 
-            if (cuentaOptional.isEmpty()) {
-
+            if (optionalCuenta.isEmpty()) {
                 throw new Exception("No existe la cuenta con el ID: " + cuenta.id());
             }
 
-            // Si la cuenta existe, se obtiene su valor usando Optional.get() y se almacena en cuentaModificada.
-            Cuenta cuentaModificada = cuentaOptional.get();
+            // Obtenemos la cuenta del usuario a modificar y actualizamos sus datos.
+            Cuenta cuentaModificada = optionalCuenta.get();
 
-            // Validar si la cédula está registrada para esta cuenta
-            if (!existeCedula(cuenta.cedula())) {
+           // Validar si la cédula ya existe en otra cuenta
+            if (existeCedula(cuenta.cedula(), cuenta.id())) {
+                throw new Exception("La cédula: " + cuenta.cedula() + " ya está registrada en otra cuenta.");
+            }
 
-                throw new Exception("No se encontró una cuenta con la cédula registrada: " + cuenta.cedula());
+            // Validar si el correo ya existe en otra cuenta
+            if (existeEmail(cuenta.email(), cuenta.id())) {
+                throw new Exception("El correo: " + cuenta.email() + " ya está registrado en otra cuenta.");
             }
 
             // Validar el estado de la cuenta
             if (cuentaModificada.getEstado().equals(EstadoCuenta.INACTIVO)) {
-
                 throw new Exception("La cuenta se encuentra inactiva");
             }
             if (cuentaModificada.getEstado().equals(EstadoCuenta.ELIMINADO)) {
-
                 throw new Exception("La cuenta ha sido eliminada");
             }
 
+            // Imprimir el ID original
+            System.out.println("ID original: " + cuentaModificada.getId());
+
             // Se construye la cuenta actualizada solo con los campos modificados.
             Cuenta cuentaActualizada = cuentaModificada.toBuilder()
+
+                    //.id(cuentaModificada.getId()) // Aseguramos que el ID original de la cuenta no se modifique
+                    .email(cuenta.email() )
                     .usuario(cuentaModificada.getUsuario().toBuilder()
-                            .nombre(cuenta.nombre())  // Siempre presente, no es null
+                            .cedula(cuenta.cedula() )
                             .direccion(cuenta.direccion())  // Siempre presente, no es null
+                            .nombre(cuenta.nombre())  // Siempre presente, no es null
                             .telefonos(cuenta.telefonos())  // Siempre presente, no es null
                             .build())
                     .build();
+            System.out.println("ID después del Builder: " + cuentaActualizada.getId());
 
             // Se construye la instancia "cuentaActualizada". Se guarda la cuenta actualizada en el repositorio.
             cuentaRepo.save(cuentaActualizada);
+
+            System.out.println("Cuenta actualizada: " + cuentaActualizada);
 
             // Retornar el ID de la cuenta actualizada
             return cuentaActualizada.getId();
@@ -225,17 +232,30 @@ public class CuentaServicioImp implements CuentaServicio {
         }
     }
 
+    // Método sobrecargado para excluir la cuenta actual de la validación
+    private boolean existeCedula(String cedula, String idCuentaActual) {
+        return cuentaRepo.buscarCedula(cedula)
+                .filter(cuenta -> !cuenta.getId().equals(idCuentaActual)) // Excluir la cuenta actual
+                .isPresent();
+    }
+
+    // Método sobrecargado para excluir la cuenta actual de la validación del correo
+    private boolean existeEmail(String email, String idCuentaActual) {
+        return cuentaRepo.buscarEmail(email)
+                .filter(cuenta -> !cuenta.getId().equals(idCuentaActual)) // Excluir la cuenta actual
+                .isPresent();
+    }
+
     @Override
     public String eliminarCuenta(String id) throws Exception {
 
         try {
             // Cuenta cuenta = obtenerCuentaPorId(id);
             // Paso 1: Buscar la cuenta en el repositorio usando su ID.
-            Optional<Cuenta> cuentaOptional = cuentaRepo.findById(id);
+            Optional<Cuenta> cuentaOptional = cuentaRepo.buscarId(id);
 
             // Paso 2: Validar si la cuenta existe.
             if (cuentaOptional.isEmpty()) {
-
                 throw new Exception("La cuenta no existe");
             }
 
@@ -245,14 +265,12 @@ public class CuentaServicioImp implements CuentaServicio {
 
             // Paso 4: Validar sí la cuenta ya fue eliminada.
             if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
-
                 throw new Exception("La cuenta ya ha sido eliminada:" + id);
             }
 
             // Aunque sabemos que el frontend no permite el acceso hasta aquí.
             // Paso 5: Validar si la cuenta está inactiva
             if (cuenta.getEstado().equals(EstadoCuenta.INACTIVO)) {
-
                 // Si la cuenta ya está en estado ELIMINADO, lanzar una excepción.
                 throw new Exception("La cuenta no ha sido activada:" + id);
             }
@@ -274,14 +292,14 @@ public class CuentaServicioImp implements CuentaServicio {
         }
     }
 
-    private Cuenta obtenerCuenta(String id) throws Exception {
+    @Override
+    public Cuenta obtenerCuenta(String id) throws Exception {
 
         // Buscar la cuenta en el repositorio por ID
-        Optional<Cuenta> cuentaOptional = cuentaRepo.findById(id);
+        Optional<Cuenta> cuentaOptional = cuentaRepo.buscarId(id);
 
         // Si no se encuentra, lanzar una excepción
         if (cuentaOptional.isEmpty()) {
-
             throw new Exception("La cuenta con el ID: " + id + " no existe.");
         }
 
@@ -292,8 +310,15 @@ public class CuentaServicioImp implements CuentaServicio {
     @Override
     public InformacionCuentaDTO obtenerInformacionCuenta(String id) throws Exception {
 
+        //Obtenemos la cuenta del usuario
         Cuenta cuenta = obtenerCuenta(id);
 
+        // Validar si la cuenta está eliminada
+        if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
+            throw new Exception("La cuenta con el ID " + id + " está eliminada.");
+        }
+
+        // Se retorna la información de la cuenta del usuario
         // return new InformacionCuentaDTO(
         return InformacionCuentaDTO.builder()
                 .id(cuenta.getId() )

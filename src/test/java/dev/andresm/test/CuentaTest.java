@@ -71,23 +71,23 @@ public class CuentaTest {
     public void actualizarCuentaTest() {
 
         // Se obtiene la Cuenta con el id "xxx" de la bd usando Optional.
-        Optional<Cuenta> cuentaOptional = cuentaRepo.findById("67708cb94a0e925cca4b7773");
+        Optional<Cuenta> cuentaOptional = cuentaRepo.findById("677f0ed2400c690ff52e2163");
 
         // Se verifica que el cliente existe y se modifica.
         cuentaOptional.ifPresent(cuenta -> {
 
             // Se modifica el email de la Cuenta. Sí(el Optional no está vacío).
-            cuenta.setEmail("claudia_nuevo@email.com");
+            cuenta.setEmail("ternurita@email.com");
             // Se guarda la cuenta.
             cuentaRepo.save(cuenta);
         });
 
         // Se obtiene la Cuenta con el id "xxx" de la bd nuevamente.
-        Optional<Cuenta> cuentaActualizadaOptional = cuentaRepo.findById("67708cb94a0e925cca4b7773");
+        Optional<Cuenta> cuentaActualizadaOptional = cuentaRepo.findById("677f0ed2400c690ff52e2163");
 
         // Se verifica que la Cuenta fue encontrada y el email se haya actualizado.
         cuentaActualizadaOptional.ifPresent(clienteActualizada ->
-                Assertions.assertEquals("claudia_nuevo@email.com", clienteActualizada.getEmail())
+                Assertions.assertEquals("ternurita@email.com", clienteActualizada.getEmail())
         );
     }
 
@@ -111,7 +111,7 @@ public class CuentaTest {
     public void obtenerPorEmail() {
 
         // Dado el correo se imprime el objeto, se restringe el password en la Cuenta, para que no sea visible.
-        Cuenta cuenta = cuentaRepo.obtenerPorEmail("andrez24h@gmail.com");
+        Optional<Cuenta> cuenta = cuentaRepo.buscarEmail("andrez24h@gmail.com");
         //cuenta.forEach(System.out::println);
         System.out.println(cuenta);
 
@@ -122,7 +122,7 @@ public class CuentaTest {
     @Test
     public void obtenerPorEmail2() {
 
-        Optional<Cuenta> cuenta = cuentaRepo.findByEmail("andrez24h@gmail.com");
+        Optional<Cuenta> cuenta = cuentaRepo.buscarEmail("andrez24h@gmail.com");
 
         // Se verifica que el Optional contiene un valor
         Assertions.assertTrue(cuenta.isPresent(), "La cuenta debería estar presente para este email");

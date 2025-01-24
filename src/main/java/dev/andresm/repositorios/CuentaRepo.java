@@ -13,21 +13,25 @@ import java.util.Optional;
 public interface CuentaRepo extends MongoRepository<Cuenta, String> {
 
     // Query("select c from Cliente c where c.correo = :email") || c.correo = ?1")
-    @Query("{ 'email': ?0 }")
-    Cuenta obtenerPorEmail(String email);
+    @Query("{ email: ?0 }")
+    Optional<Cuenta> buscarEmail(String email);
 
-    Optional<Cuenta> findByEmail(String email);
+    @Query("{ 'usuario.cedula': ?0 }")
+    Optional<Cuenta> buscarCedula(String cedula);
 
-    @Query("{id: ?0}")
+
+    @Query("{ id: ?0 }")
     Optional<Cuenta> buscarId(String id);
+    //Optional<Cuenta> findByEmail(String email);
+
 
     //@Query("select c from Cliente c where c.correo = :correo and c.password")
-    @Query("{ 'email': ?0, 'password': ?1 }")
+    @Query("{ email: ?0, password: ?1 }")
     Cuenta AutenticacionEmail(String email, String passwowd);
 
 
     //@Query("select c from Cuenta c where c.estado = :estado")
-    @Query("{ 'estado': ?0 }") // True = 1 , False = 0
+    @Query("{ estado: ?0 }") // True = 1 , False = 0
     Page<Cuenta> obtenerPorEstado(EstadoCuenta estado, Pageable paginador);
 
 }

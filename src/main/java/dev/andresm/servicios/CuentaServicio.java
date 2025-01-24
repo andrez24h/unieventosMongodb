@@ -4,6 +4,7 @@ import dev.andresm.dto.cuenta.ActualizarCuentaDTO;
 import dev.andresm.dto.cuenta.CrearCuentaDTO;
 import dev.andresm.dto.cuenta.InformacionCuentaDTO;
 import dev.andresm.dto.cuenta.ItemCuentaDTO;
+import dev.andresm.modelo.Cuenta;
 
 import java.util.List;
 
@@ -21,4 +22,5 @@ public interface CuentaServicio {
 
     String generarCodigo();
 
+    Cuenta obtenerCuenta(String id) throws Exception;
 }

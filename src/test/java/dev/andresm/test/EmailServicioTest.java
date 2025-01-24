@@ -17,7 +17,7 @@ public class EmailServicioTest {
     public void enviarEmailTest() throws Exception {
 
         // Se crea el objeto EmailDTO
-        EmailDTO emailDTO = new EmailDTO("Prueba de envío", "Mensaje de prueba 8 ", "amhernandezp@uqvirtual.edu.co");
+        EmailDTO emailDTO = new EmailDTO("Prueba de envío", "Mensaje de prueba 11 ", "amhernandezp@uqvirtual.edu.co");
 
         // Se invoca el método del servicio de envío de correos y se recibe el booleano
         boolean enviado = emailServicio.enviarEmail(emailDTO);
