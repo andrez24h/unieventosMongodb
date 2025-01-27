@@ -1,9 +1,7 @@
 package dev.andresm.servicios;
 
-import dev.andresm.dto.cuenta.ActualizarCuentaDTO;
-import dev.andresm.dto.cuenta.CrearCuentaDTO;
-import dev.andresm.dto.cuenta.InformacionCuentaDTO;
-import dev.andresm.dto.cuenta.ItemCuentaDTO;
+import dev.andresm.dto.cuenta.TokenDTO;
+import dev.andresm.dto.cuenta.*;
 import dev.andresm.modelo.Cuenta;
 
 import java.util.List;
@@ -23,4 +21,8 @@ public interface CuentaServicio {
     String generarCodigo();
 
     Cuenta obtenerCuenta(String id) throws Exception;
+
+    Cuenta obtenerEmail(String email) throws Exception;
+
+    TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception;
 }

@@ -1,9 +1,6 @@
 package dev.andresm.test;
 
-import dev.andresm.dto.cuenta.ActualizarCuentaDTO;
-import dev.andresm.dto.cuenta.CrearCuentaDTO;
-import dev.andresm.dto.cuenta.InformacionCuentaDTO;
-import dev.andresm.dto.cuenta.ItemCuentaDTO;
+import dev.andresm.dto.cuenta.*;
 import dev.andresm.modelo.Cuenta;
 import dev.andresm.repositorios.CuentaRepo;
 import dev.andresm.servicios.CuentaServicio;
@@ -23,6 +20,7 @@ public class CuentaServicioTest {
 
     @Autowired
     private CuentaRepo cuentaRepo;
+
     /**
      * Prueba unitaria para validar la creación de una cuenta utilizando el patrón Builder.
      * Esta prueba asegura que:
@@ -41,7 +39,7 @@ public class CuentaServicioTest {
                 .email("andres24h@hotmail.com")
                 .nombre("Andres")
                 .password("12345")
-                .telefonos(List.of("3117188224", "3105862354") )
+                .telefonos(List.of("3117188224", "3105862354"))
                 .build();
 
         // Llamada al servicio para crear la cuenta.
@@ -109,14 +107,14 @@ public class CuentaServicioTest {
         //Se espera que no se lance ninguna excepción
         Assertions.assertDoesNotThrow(() -> {
 
-        //Se actualiza la cuenta del usuario con el id definido
-        cuentaServicio.actualizarCuenta(actualizarCuentaDTO);
+            //Se actualiza la cuenta del usuario con el id definido
+            cuentaServicio.actualizarCuenta(actualizarCuentaDTO);
 
-        //Obtenemos el detalle de la cuenta del usuario con el id definido
-        InformacionCuentaDTO detalle = cuentaServicio.obtenerInformacionCuenta(idCuenta);
+            //Obtenemos el detalle de la cuenta del usuario con el id definido
+            InformacionCuentaDTO detalle = cuentaServicio.obtenerInformacionCuenta(idCuenta);
 
-        //Se verifica que la dirección del usuario sea la actualizada
-        Assertions.assertEquals("rojas3", detalle.direccion());
+            //Se verifica que la dirección del usuario sea la actualizada
+            Assertions.assertEquals("rojas3", detalle.direccion());
         });
     }
 
@@ -127,10 +125,34 @@ public class CuentaServicioTest {
         String idCuenta = "678d8101d4284f2b6531cadf";
 
         //Se elimina la cuenta del usuario con el id definido
-        Assertions.assertDoesNotThrow(() -> cuentaServicio.eliminarCuenta(idCuenta) );
+        Assertions.assertDoesNotThrow(() -> cuentaServicio.eliminarCuenta(idCuenta));
 
         //Al intentar obtener la cuenta del usuario con el id definido se debe lanzar una excepción
-        Assertions.assertThrows(Exception.class, () -> cuentaServicio.obtenerInformacionCuenta(idCuenta) );
+        Assertions.assertThrows(Exception.class, () -> cuentaServicio.obtenerInformacionCuenta(idCuenta));
+    }
+
+    @Test
+    public void iniciarSesionTest() {
+        // Crear el DTO de login utilizando el patrón Builder
+        LoginDTO loginDTO = LoginDTO.builder()
+
+                .email("andres24h@hotmail.com")
+                .password("12345")
+                .build();
+
+        // Ejecutar el método y verificar que no lanza excepciones
+        Assertions.assertDoesNotThrow(() -> {
+            TokenDTO tokenDTO = cuentaServicio.iniciarSesion(loginDTO);
+
+            // Imprimir el objeto TokenDTO
+            System.out.println("TokenDTO: " + tokenDTO);
+
+            // Imprimir el token en sí
+            System.out.println("Token: " + tokenDTO.token());
+
+            Assertions.assertNotNull(tokenDTO); // Se verifica que el objeto tokenDTO no sea nulo, lo que indica que la autenticación fue exitosa.
+            Assertions.assertTrue(tokenDTO.token().startsWith("ey"));  // Se verifica que el token empiece con "ey". Es un patrón común en los tokens JWT (JSON Web Tokens). Esto es una forma de asegurarse de que el token tiene el formato esperado.
+        });
     }
 }
 

@@ -1,10 +1,8 @@
 package dev.andresm.servicios;
 
 import com.mongodb.assertions.Assertions;
-import dev.andresm.dto.cuenta.ActualizarCuentaDTO;
-import dev.andresm.dto.cuenta.CrearCuentaDTO;
-import dev.andresm.dto.cuenta.InformacionCuentaDTO;
-import dev.andresm.dto.cuenta.ItemCuentaDTO;
+import dev.andresm.config.JWTUtils;
+import dev.andresm.dto.cuenta.*;
 import dev.andresm.dto.email.EmailDTO;
 import dev.andresm.modelo.*;
 import dev.andresm.repositorios.CuentaRepo;
@@ -17,6 +15,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,6 +26,7 @@ public class CuentaServicioImp implements CuentaServicio {
 
     private final CuentaRepo cuentaRepo;
     private final EmailServicio emailServicio;
+    private final JWTUtils jwtUtils;
 
     /**
      * Método para crear una nueva cuenta.
@@ -308,6 +308,32 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     @Override
+    public Cuenta obtenerEmail(String email) throws Exception {
+
+        // Buscar la cuenta en el repositorio por email
+        Optional<Cuenta> cuentaOptional = cuentaRepo.buscarEmail(email);
+
+        // Si no se encuentra, lanzar una excepción
+        if (cuentaOptional.isEmpty()) {
+            throw new Exception("La cuenta con el email: " + email + " no existe.");
+        }
+
+        // Obtener la cuenta
+        Cuenta cuenta = cuentaOptional.get();
+
+        // Validar el estado de la cuenta
+        if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
+            throw new Exception("La cuenta con el email: " + email + " ha sido eliminada.");
+        }
+        if (cuenta.getEstado().equals(EstadoCuenta.INACTIVO)) {
+            throw new Exception("La cuenta con el email: " + email + " está inactiva.");
+        }
+
+        // Retornar la cuenta válida
+        return cuenta;
+    }
+
+    @Override
     public InformacionCuentaDTO obtenerInformacionCuenta(String id) throws Exception {
 
         //Obtenemos la cuenta del usuario
@@ -328,5 +354,32 @@ public class CuentaServicioImp implements CuentaServicio {
                 .nombre(cuenta.getUsuario().getNombre() )
                 .telefono(cuenta.getUsuario().getTelefonos() )
                 .build();
+    }
+
+    @Override
+    public TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception {
+
+        // Obtener y validar la cuenta
+        Cuenta cuenta = obtenerEmail(loginDTO.email());
+
+        // Validar la contraseña
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        if (!passwordEncoder.matches(loginDTO.password(), cuenta.getPassword())) {
+            throw new Exception("La contraseña es incorrecta");
+        }
+
+        // Construir los claims y generar el token
+        Map<String, Object> map = construirClaims(cuenta);
+        return new TokenDTO(jwtUtils.generarToken(cuenta.getEmail(), map));
+    }
+
+    private Map<String, Object> construirClaims(Cuenta cuenta) {
+
+        return Map.of(
+                "rol", cuenta.getRol(),
+                "nombre", cuenta.getUsuario().getNombre(),
+                "id", cuenta.getId()
+        );
     }
 }
