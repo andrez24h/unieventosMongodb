@@ -1,4 +1,4 @@
-db = connect( 'mongodb://root:example@localhost:27017/multilocal?authSource=admin' );
+db = connect( 'mongodb://localhost:27017/unieventosMongodb' );
 
 db.clientes.insertMany([
     {
@@ -10,7 +10,7 @@ db.clientes.insertMany([
         password: 'mipassword',
         nombre: 'Juan',
         estado: 'ACTIVO',
-        _class: 'co.edu.uniquindio.proyecto.modelo.documentos.Cliente'
+        _class: 'dev.andresm.unieventosMongodb.documentos.Cuenta'
     },
     {
         _id: 'Cliente2',
@@ -21,7 +21,7 @@ db.clientes.insertMany([
         password: 'mipassword',
         nombre: 'Maria',
         estado: 'ACTIVO',
-        _class: 'co.edu.uniquindio.proyecto.modelo.documentos.Cliente'
+        _class: 'dev.andresm.unieventosMongodb.documentos.Cuenta'
     },
     {
         _id: 'Cliente3',
@@ -32,7 +32,7 @@ db.clientes.insertMany([
         password: 'mipassword',
         nombre: 'Pedro',
         estado: 'ACTIVO',
-        _class: 'co.edu.uniquindio.proyecto.modelo.documentos.Cliente'
+        _class: 'dev.andresm.unieventosMongodb.documentos.Cuenta'
     }
 ]);
 
@@ -57,7 +57,7 @@ db.negocios.insertMany([
         ],
         telefonos: ['1234567', '7654321'],
         estado: 'ACTIVO',
-        _class: 'co.edu.uniquindio.proyecto.modelo.documentos.Negocio'
+        _class: 'dev.andresm.unieventosMongodb.documentos.Negocio'
     }
 ]);
 
@@ -68,6 +68,6 @@ db.comentarios.insertMany([
         codigoCliente: 'Cliente1',
         codigoNegocio: 'Negocio1',
         calificacion: 5,
-        _class: 'co.edu.uniquindio.proyecto.modelo.documentos.Comentario'
+        _class: 'dev.andresm.unieventosMongodb.documentos.Comentario'
     }
 ]);

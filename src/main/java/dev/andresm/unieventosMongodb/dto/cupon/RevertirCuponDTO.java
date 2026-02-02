@@ -1,0 +1,7 @@
+package dev.andresm.unieventosMongodb.dto.cupon;
+
+public record RevertirCuponDTO(
+        String codigoCupon,
+        String idCliente
+) {
+}

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5fbe80f7-c38c-4f01-8054-1ceed703eb54" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/config/FiltroToken.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/controladores/AutenticacionControlador.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/controladores/CuentaContolador.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Carrito.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Evento.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Ubicacion.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/conex/ValidacionDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/ActivarCuentaDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/AgregarEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/CambiarPasswordDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/CodigoPasswordDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/EditarCuentaDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/EditarEventoCarritoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/EliminarEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/ActualizarCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/CrearCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/CuponRegistroDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/ItemCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/ListarCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/RedimirCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cupon/RevertirCuponDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/CrearEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/DisponibilidadEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/EditarEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorFechaDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorFechaYCiudadDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorFechaYTipoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorFechaYTipoYCiudadDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorNombreYCiudadDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltrarPorTipoYCiudadDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/FiltroEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/InformacionEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/evento/ItemEventoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/orden/CrearOrdenDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/orden/FiltrarOrdenUsuarioDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/orden/ItemOrdenDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/excepciones/GlobalException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/repositorios/CuentaRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/repositorios/CuponRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/repositorios/EventoRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/repositorios/OrdenRepo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/implement/CuentaServicioImp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/implement/CuponServicioImp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/implement/EmailServicioImp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/interfaces/CuentaServicio.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/interfaces/CuponServicio.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/interfaces/EmailServicio.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/MultilocalApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/UnieventosMongodbApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/config/JWTUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/config/JWTUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/conex/MensajeDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/conex/MensajeDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/ActualizarCuentaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/ActualizarCuentaDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/CrearCuentaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/CrearCuentaDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/InformacionCuentaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/InformacionCuentaDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/ItemCuentaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/ItemCuentaDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/LoginDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/LoginDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/cuenta/TokenDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/cuenta/TokenDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/dto/email/EmailDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/dto/email/EmailDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Carrito.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/CodigoValidacion.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/CodigoValidacion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Cuenta.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Cuenta.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Cupon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Cupon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/DetalleCarrito.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/DetalleCarrito.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/DetalleOrden.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/DetalleOrden.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/EstadoCuenta.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/EstadoCuenta.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/EstadoCupon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/EstadoCupon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/EstadoEvento.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/EstadoEvento.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Evento.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Localidad.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Localidad.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Orden.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Orden.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Pago.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Pago.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Reporte.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Reporte.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Rol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Rol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/TipoCupon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/TipoCupon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/TipoEvento.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/TipoEvento.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Ubicacion.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/modelo/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/documentos/Usuario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/repositorios/CuentaRepo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/repositorios/CuponRepo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/repositorios/EventoRepo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/repositorios/OrdenRepo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/repositorios/UsuarioRepo.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/servicios/CuentaServicio.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/servicios/CuentaServicioImp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/servicios/EmailServicio.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dev/andresm/servicios/EmailServicioImp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/andresm/test/CuentaServicioTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/dev/andresm/unieventosMongodb/test/CuentaServicioTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/andresm/test/CuentaTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/dev/andresm/unieventosMongodb/test/CuentaTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/dev/andresm/test/EmailServicioTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/dev/andresm/unieventosMongodb/test/EmailServicioTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/dataset.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/dataset.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Record" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;andres24h&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:andres24h/Multilocal.git&quot;,
+    &quot;accountId&quot;: &quot;e8ebcb29-bdf4-41de-ace1-4205046ae33c&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/dev/andresm/unieventosMongodb/servicios/CuentaServicioImp.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="37lf93sUSKfny0VhgH7WYDLOmdQ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build unieventosMongodb.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.CuentaServicioTest.crearCuentaTest.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.CuentaTest.autenticacionEmail.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.EmailServicioTest.enviarEmailTest.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Spring Boot.UnieventosMongodbApplication (1).executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.UnieventosMongodbApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/andres/IdeaProjects/unieventosMongodb/src/test/resources/dataset.js&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;database.query.execution&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;java.sql.Driver&quot;,
+      &quot;mongo&quot;
+    ]
+  }
+}</component>
+  <component name="RunManager" selected="Spring Boot.UnieventosMongodbApplication">
+    <configuration name="CuentaTest.autenticacionEmail" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;dev.andresm.unieventosMongodb.test.CuentaTest.autenticacionEmail&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="EmailServicioTest.enviarEmailTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;dev.andresm.unieventosMongodb.test.EmailServicioTest.enviarEmailTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="UnieventosMongodbApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="unieventosMongodb.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="dev.andresm.unieventosMongodb.UnieventosMongodbApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="dev.andresm.unieventosMongodb.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.UnieventosMongodbApplication" />
+        <item itemvalue="Gradle.CuentaTest.autenticacionEmail" />
+        <item itemvalue="Gradle.EmailServicioTest.enviarEmailTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5fbe80f7-c38c-4f01-8054-1ceed703eb54" name="Changes" comment="" />
+      <created>1767482423743</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1767482423743</updated>
+      <workItem from="1767482424811" duration="531000" />
+      <workItem from="1767482985743" duration="123000" />
+      <workItem from="1767483374204" duration="771000" />
+      <workItem from="1767484845439" duration="1414000" />
+      <workItem from="1767551413854" duration="7383000" />
+      <workItem from="1767567125976" duration="7838000" />
+      <workItem from="1767644516567" duration="13535000" />
+      <workItem from="1767735932518" duration="3543000" />
+      <workItem from="1767806531310" duration="7580000" />
+      <workItem from="1768003533678" duration="239000" />
+      <workItem from="1768078385863" duration="10716000" />
+      <workItem from="1768236978539" duration="15430000" />
+      <workItem from="1768328185173" duration="7938000" />
+      <workItem from="1768414741042" duration="6328000" />
+      <workItem from="1768510508399" duration="10970000" />
+      <workItem from="1768780755604" duration="7131000" />
+      <workItem from="1768952689167" duration="1647000" />
+      <workItem from="1769120952623" duration="3717000" />
+      <workItem from="1769186754771" duration="16503000" />
+      <workItem from="1769274027448" duration="7875000" />
+      <workItem from="1769356189265" duration="14721000" />
+      <workItem from="1769460522309" duration="9274000" />
+      <workItem from="1769529399315" duration="12116000" />
+      <workItem from="1769618015011" duration="9993000" />
+      <workItem from="1769807888850" duration="14949000" />
+      <workItem from="1769879499818" duration="7506000" />
+      <workItem from="1770058487902" duration="6027000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -6,7 +6,7 @@ plugins {
 
 group = 'dev.andresm'
 version = '1.0-SNAPSHOT'
-description = 'Aplicación multilocal'
+description = 'Aplicación unieventosMongodb'
 
 java {
     toolchain {
