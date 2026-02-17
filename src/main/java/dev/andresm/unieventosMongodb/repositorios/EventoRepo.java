@@ -1,10 +1,7 @@
 package dev.andresm.unieventosMongodb.repositorios;
 
-import dev.andresm.unieventosMongodb.documentos.Cuenta;
 import dev.andresm.unieventosMongodb.documentos.Evento;
 import dev.andresm.unieventosMongodb.documentos.TipoEvento;
-import jakarta.validation.constraints.NotNull;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -36,7 +33,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ tipo: ?0 }")
-    Optional<Evento> buscarPorTipo(TipoEvento tipo);
+    List<Evento> buscarPorTipo(
+            TipoEvento tipo);
 
     /**
      * 🔹 Buscar evento por ciudad exacta.
@@ -45,7 +43,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ ciudad: ?0 }")
-    Optional<Evento> buscarPorCiudad(String ciudad);
+    List<Evento> buscarPorCiudad(
+            String ciudad);
 
     /**
      * 🔹 Buscar evento por nombre exacto.
@@ -57,6 +56,26 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     Optional<Evento> buscarPorNombre(String nombre);
 
     /**
+     * - Verificar si existe OTRO evento con el mismo nombre,
+     * excluyendo un ID específico.
+
+     * Se utiliza principalmente en la edición de eventos para validar
+     * que no exista otro evento distinto con el mismo nombre,
+     * permitiendo que el evento conserve su nombre original
+     * sin generar conflicto.
+
+     * MongoDB:
+     * - nombre: ?0  → nombre del evento
+     * - _id: { $ne: ?1 } → diferente al ID enviado
+     *
+     * @param nombre Nombre del evento
+     * @param id Identificador del evento que se está editando
+     * @return Optional con el evento encontrado si existe conflicto
+     */
+    @Query("{ nombre: ?0, _id: { $ne: ?1 } }")
+    Optional<Evento> buscarPorNombreIdDiferente(String nombre, String id);
+
+    /**
      * 🔹 Buscar evento por nombre parcial (LIKE).
      * Se usa una expresión regular con opción 'i'
      * para hacer la búsqueda insensible a mayúsculas.
@@ -65,20 +84,10 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ nombre: { $regex: ?0, $options: 'i' } }")
-    Optional<Evento> buscarPorNombreParcial(String nombre);
+    List<Evento> buscarPorNombreParcial(
+            String nombre);
 
-    /**
-     * 🔹 Buscar evento por dirección parcial.
-     * Permite búsquedas flexibles por dirección,
-     * útil para filtros en frontend.
-     *
-     * @param direccion Texto parcial de la dirección
-     * @return Evento encontrado
-     */
-    @Query("{ direccion: { $regex: ?0, $options: 'i' } }")
-    Optional<Evento> buscarPorDireccionParcial(String direccion);
-
-    /**
+   /**
      * 🔹 Buscar evento por nombre y ciudad.
      *
      * @param nombre Nombre del evento
@@ -86,7 +95,9 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ nombre: ?0, ciudad: ?1 }")
-    Optional<Evento> buscarPorNombreYCiudad(String nombre, String ciudad);
+    List<Evento> buscarPorNombreYCiudad(
+            String nombre,
+            String ciudad);
 
     /**
      * 🔹 Buscar eventos dentro de un rango de fechas.
@@ -99,7 +110,9 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 } }")
-    Optional<Evento> buscarPorRangoFechas(LocalDateTime inicio, LocalDateTime fin);
+    List<Evento> buscarPorFecha(
+            LocalDateTime inicio,
+            LocalDateTime fin);
 
     /**
      * 🔹 Buscar eventos por rango de fechas y ciudad.
@@ -110,7 +123,10 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 }, ciudad: ?2 }")
-    Optional<Evento> buscarPorFechasYCiudad(LocalDateTime inicio, LocalDateTime fin, String ciudad);
+    List<Evento> buscarPorFechaYCiudad(
+            LocalDateTime inicio,
+            LocalDateTime fin,
+            String ciudad);
 
     /**
      * 🔹 Buscar eventos por rango de fechas y tipo.
@@ -121,7 +137,10 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 }, tipo: ?2 }")
-    Optional<Evento> buscarPorFechasYTipo(LocalDateTime inicio, LocalDateTime fin, TipoEvento tipo);
+    List<Evento> buscarPorFechaYTipo(
+            LocalDateTime inicio,
+            LocalDateTime fin,
+            TipoEvento tipo);
 
     /**
      * 🔹 Buscar eventos por rango de fechas, tipo y ciudad.
@@ -134,7 +153,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 }, tipo: ?2, ciudad: ?3 }")
-    Optional<Evento> buscarPorFechasTipoYCiudad(
+    List<Evento> buscarPorFechaTipoYCiudad(
             LocalDateTime inicio,
             LocalDateTime fin,
             TipoEvento tipo,
@@ -149,7 +168,9 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
      * @return Evento encontrado
      */
     @Query("{ tipo: ?0, ciudad: ?1 }")
-    Optional<Evento> buscarPorTipoYCiudad(TipoEvento tipo, String ciudad);
+    List<Evento> buscarPorTipoYCiudad(
+            TipoEvento tipo,
+            String ciudad);
 
     /**
      * 🔹 Listar todos los eventos registrados.

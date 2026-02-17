@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface CuentaRepo extends MongoRepository<Cuenta, String> {
 
     /**
-     * 🔹 Buscar una cuenta por su identificador único.
+     * - Buscar una cuenta por su identificador único.
      * Se utiliza el campo {@code _id} ya que MongoDB maneja internamente
      * los identificadores primarios con ese nombre.
      *
@@ -27,7 +27,7 @@ public interface CuentaRepo extends MongoRepository<Cuenta, String> {
     Optional<Cuenta> buscarId(String id);
 
     /**
-     * 🔹 Buscar una cuenta por correo electrónico.
+     * - Buscar una cuenta por correo electrónico.
      * Este método se usa principalmente para:
      * - Validaciones de registro
      * - Inicio de sesión
@@ -41,7 +41,7 @@ public interface CuentaRepo extends MongoRepository<Cuenta, String> {
     Optional<Cuenta> buscarEmail(String email);
 
     /**
-     * 🔹 Buscar una cuenta por la cédula del usuario asociado.
+     * - Buscar una cuenta por la cédula del usuario asociado.
      * La cédula se encuentra embebida dentro del objeto {@code usuario}
      * de la cuenta.
      * Se utiliza para búsquedas administrativas o validaciones
@@ -54,9 +54,42 @@ public interface CuentaRepo extends MongoRepository<Cuenta, String> {
     Optional<Cuenta> buscarCedula(String cedula);
 
     /**
-     * 🔹 Autenticación de una cuenta mediante correo y contraseña.
+     * - Buscar una cuenta por email excluyendo un ID específico.
+
+     * Este método se utiliza principalmente en procesos de actualización,
+     * para validar que no exista otra cuenta con el mismo email
+     * diferente a la que se está editando.
+
+     * La condición {_id: { $ne: ?1 }} indica:
+     * "Buscar documentos cuyo ID sea distinto al proporcionado".
+     *
+     * @param email correo electrónico a validar
+     * @param id identificador de la cuenta que se está actualizando
+     * @return un {@link Optional} con la cuenta encontrada si existe otra con el mismo email
+     */
+    @Query("{ email: ?0, _id: { $ne: ?1 } }")
+    Optional<Cuenta> buscarEmailIdDiferente(String email, String id);
+
+    /**
+     * - Buscar una cuenta por cédula excluyendo un ID específico.
+     *
+     * Similar a {@code buscarEmailIdDiferente}, pero aplicado a la cédula
+     * del usuario embebido dentro de la cuenta.
+     *
+     * Se usa para validar que no exista otra cuenta con la misma cédula
+     * diferente a la que se está editando.
+     *
+     * @param cedula cédula a validar
+     * @param id identificador de la cuenta que se está actualizando
+     * @return un {@link Optional} con la cuenta encontrada si existe otra con la misma cédula
+     */
+    @Query("{ 'usuario.cedula': ?0, _id: { $ne: ?1 } }")
+    Optional<Cuenta> buscarCedulaIdDiferente(String cedula, String id);
+
+    /**
+     * - Autenticación de una cuenta mediante correo y contraseña.
      * Retorna la cuenta únicamente si las credenciales coinciden.
-     * ⚠ Nota: la validación de contraseñas debería manejarse
+     *  Nota: la validación de contraseñas debería manejarse
      * preferiblemente con mecanismos de cifrado.
      *
      * @param email correo electrónico
@@ -65,11 +98,11 @@ public interface CuentaRepo extends MongoRepository<Cuenta, String> {
      */
     //@Query("select c from Cliente c where c.correo = :correo and c.password")
     @Query("{ email: ?0, password: ?1 }")
-    Optional<Cuenta> autenticacionEmail(String email, String passwowd);
+    Optional<Cuenta> autenticacionEmail(String email, String password);
 
 
     /**
-     * 🔹 Obtener cuentas filtradas por estado.
+     * - Obtener cuentas filtradas por estado.
      * Permite consultar cuentas activas, inactivas o eliminadas,
      * incluyendo soporte para paginación.
      *
@@ -82,7 +115,7 @@ public interface CuentaRepo extends MongoRepository<Cuenta, String> {
     Page<Cuenta> obtenerPorEstado(EstadoCuenta estado, Pageable paginador);
 
     /**
-     * 🔹 Buscar cuentas por rol.
+     * - Buscar cuentas por rol.
      * Ejemplos de rol:
      * - CLIENTE
      * - ADMIN

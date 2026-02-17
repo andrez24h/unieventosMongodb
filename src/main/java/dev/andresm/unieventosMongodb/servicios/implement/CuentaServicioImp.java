@@ -328,15 +328,13 @@ public class CuentaServicioImp implements CuentaServicio {
 
     // Método sobrecargado para excluir la cuenta actual de la validación
     private boolean existeCedula(String cedula, String idCuentaActual) {
-        return cuentaRepo.buscarCedula(cedula)
-                .filter(cuenta -> !cuenta.getId().equals(idCuentaActual)) // Excluir la cuenta actual
+        return cuentaRepo.buscarCedulaIdDiferente(cedula, idCuentaActual)
                 .isPresent();
     }
 
     // Método sobrecargado para excluir la cuenta actual de la validación del correo
     private boolean existeEmail(String email, String idCuentaActual) {
-        return cuentaRepo.buscarEmail(email)
-                .filter(cuenta -> !cuenta.getId().equals(idCuentaActual)) // Excluir la cuenta actual
+        return cuentaRepo.buscarEmailIdDiferente(email,idCuentaActual)
                 .isPresent();
     }
 

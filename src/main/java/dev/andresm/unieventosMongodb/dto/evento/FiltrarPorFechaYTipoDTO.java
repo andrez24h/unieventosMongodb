@@ -5,8 +5,7 @@ import dev.andresm.unieventosMongodb.documentos.TipoEvento;
 import java.time.LocalDate;
 
 public record FiltrarPorFechaYTipoDTO(
-        LocalDate fechaInicio,
-        LocalDate fechaFin,
+        LocalDate fecha,
         TipoEvento tipo
 ) {
 }
