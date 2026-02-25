@@ -9,3 +9,6 @@ build/
 # Otros
 out/
 .DS_Store
+
+# Firebase credentials
+src/main/resources/*.json
