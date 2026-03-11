@@ -1,5 +1,6 @@
 package dev.andresm.unieventosMongodb.repositorios;
 
+import dev.andresm.unieventosMongodb.documentos.EstadoEvento;
 import dev.andresm.unieventosMongodb.documentos.Evento;
 import dev.andresm.unieventosMongodb.documentos.TipoEvento;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -181,6 +182,24 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     @Query("{}")
     List<Evento> listarTodos();
 
+    /**
+     * - Buscar eventos disponibles para clientes.
 
+     * Se retornan únicamente los eventos que:
+     * - Están en estado ACTIVO
+     * - Tienen una fecha mayor a la actual
 
+     * MongoDB:
+     * - estado : ACTIVO
+     * - fecha : { $gt: fechaActual }
+     *
+     * @param estado estado del evento
+     * @param fecha fecha actual
+     * @return lista de eventos disponibles
+     */
+    @Query("{ estado: ?0, fecha: { $gt: ?1 } }")
+    List<Evento> buscarEventoDisponibles(
+            EstadoEvento estado,
+            LocalDateTime fecha
+    );
 }

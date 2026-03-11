@@ -15,7 +15,7 @@ public class DetalleOrden {
 
     @Id
     @EqualsAndHashCode.Include
-    private ObjectId idEvento;
+    private String idEvento;
 
     private int cantidad;
     private double precioUnitario;

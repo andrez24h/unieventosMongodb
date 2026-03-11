@@ -60,13 +60,27 @@ public interface EventoServicio {
     List<ItemEventoDTO> listarEventos();
 
     /**
+     * - Listar eventos disponibles para los clientes.
+
+     * Este método retorna únicamente los eventos que:
+     * - Se encuentran en estado ACTIVO
+     * - Tienen una fecha posterior a la fecha actual
+
+     * Esto evita mostrar eventos cancelados o eventos
+     * que ya ocurrieron.
+     *
+     * @return lista de eventos disponibles para clientes
+     */
+    List<ItemEventoDTO> listarEventosCliente();
+
+    /**
      * - Verificar la disponibilidad de una localidad dentro de un evento.
      *
      * @param disponiblidadEventoDTO datos necesarios para la verificación
      * @return true si hay disponibilidad suficiente
      * @throws Exception si el evento no existe
      */
-    boolean disponiblidad(DisponibilidadEventoDTO disponiblidadEventoDTO) throws Exception;
+    boolean disponibilidad(DisponibilidadEventoDTO disponiblidadEventoDTO) throws Exception;
 
     /**
      * - Obtener un evento completo a partir de su identificador.
@@ -80,22 +94,19 @@ public interface EventoServicio {
     /* ======================= FILTROS ===================================================== */
 
     /**
-     * - Filtrar eventos de forma dinámica utilizando múltiples criterios opcionales.
-     * <p>
-     * Este método permite aplicar filtros combinados tales como:
-     * - Nombre (búsqueda parcial)
-     * - Ciudad
-     * - Tipo de evento
-     * - Fecha o rango de fechas
-     * <p>
-     * Si algún campo del DTO es nulo, dicho criterio no será tenido en cuenta
-     * en la consulta.
-     * <p>
-     * Este método es utilizado principalmente en el frontend
-     * para el componente de búsqueda avanzada de eventos.
+     * Filtra eventos según los criterios especificados en el DTO.
+
+     * La consulta es dinámica: únicamente se aplican los filtros
+     * cuyos campos no sean nulos o vacíos.
+
+     * Permite realizar búsquedas combinadas sin necesidad de
+     * múltiples métodos específicos.
      *
-     * @param filtroEventoDTO datos opcionales para aplicar el filtrado
-     * @return lista de eventos que cumplen los criterios indicados
+     * @param filtroEventoDTO DTO con los criterios de filtrado.
+     *               Todos los campos son opcionales.
+
+     * @return Lista de eventos resumidos (ItemEventoDTO)
+     *         que cumplen con los criterios especificados.
      */
     List<ItemEventoDTO> filtrarEventos(FiltroEventoDTO filtroEventoDTO);
 

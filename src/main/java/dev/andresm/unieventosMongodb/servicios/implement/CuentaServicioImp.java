@@ -1,5 +1,7 @@
 package dev.andresm.unieventosMongodb.servicios.implement;
 
+import dev.andresm.unieventosMongodb.carrito.CarritoDTO;
+import dev.andresm.unieventosMongodb.carrito.ItemCarritoDTO;
 import dev.andresm.unieventosMongodb.config.JWTUtils;
 import dev.andresm.unieventosMongodb.documentos.Cuenta;
 import dev.andresm.unieventosMongodb.dto.cuenta.*;
@@ -669,10 +671,18 @@ public class CuentaServicioImp implements CuentaServicio {
                 .nombreLocalidad(agregarEventoDTO.nombreLocalidad())
                 .build();
 
-        // 6. Agregar al carrito
+        // 6. Evitar NullPointer
+        if (carrito.getItems() == null) {
+            carrito.setItems(new ArrayList<>());
+        }
+        // 7. Agregar al carrito
         carrito.getItems().add(detalleCarrito);
 
-        // 7. Guardar cuenta
+        // 8. Actualizar entradas vendidas
+        localidad.setEntradasVendidas(
+                localidad.getEntradasVendidas() + agregarEventoDTO.cantidad());
+
+        // 9. Guardar cuenta
         cuentaRepo.save(cuenta);
 
         return "Evento agregado al carrito con éxito";
@@ -736,8 +746,24 @@ public class CuentaServicioImp implements CuentaServicio {
 
         Evento evento = eventoOptional.get();
 
-        // 6. Buscar la nueva localidad
-        Optional<Localidad> localidadOptional = evento.getLocalidades().stream().filter(l -> l.getNombre().equals(editarEventoCarritoDTO.nuevaLocalidad())).findFirst();
+        // 6. Obtener la localidad anterior del detalle
+        Localidad localidadAnterior = evento.getLocalidades()
+                .stream()
+                .filter(localidad -> localidad.getNombre().equals(detalleCarrito.getNombreLocalidad()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("Localidad anterior no encontrada"));
+
+        // 7. Devolver las entradas anteriores
+        localidadAnterior.setEntradasVendidas(
+                localidadAnterior.getEntradasVendidas() - detalleCarrito.getCantidad());
+
+        // 8. Buscar la nueva localidad
+
+
+        Optional<Localidad> localidadOptional = evento.getLocalidades()
+                .stream()
+                .filter(l -> l.getNombre().equals(editarEventoCarritoDTO.nuevaLocalidad()))
+                .findFirst();
 
         if (localidadOptional.isEmpty()) {
             throw new Exception("La nueva localidad no existe");
@@ -745,16 +771,20 @@ public class CuentaServicioImp implements CuentaServicio {
 
         Localidad nuevaLocalidad = localidadOptional.get();
 
-        // 7. Validar disponibilidad
+        // 9. Validar disponibilidad
         if (nuevaLocalidad.cantidadDisponible() < editarEventoCarritoDTO.nuevaCantidad()) {
             throw new Exception( "No hay suficientes entradas disponibles, hay " + nuevaLocalidad.cantidadDisponible());
         }
 
-        // 8. Actualizar el detalle del carrito
+        // 10. Registrar nuevas entradas
+        nuevaLocalidad.setEntradasVendidas(
+                nuevaLocalidad.getEntradasVendidas() + editarEventoCarritoDTO.nuevaCantidad());
+
+        // 11. Actualizar el detalle del carrito
         detalleCarrito.setNombreLocalidad(editarEventoCarritoDTO.nuevaLocalidad());
         detalleCarrito.setCantidad(editarEventoCarritoDTO.nuevaCantidad());
 
-        // 9. Guardar cambios
+        // 12. Guardar cambios
         cuentaRepo.save(cuenta);
 
         return "Evento del carrito editado con éxito";
@@ -798,19 +828,217 @@ public class CuentaServicioImp implements CuentaServicio {
         }
 
         // 3. Buscar detalle por código
-        Optional<DetalleCarrito> detalleOptional = carrito.getItems().stream().filter(detalle -> detalle.getCodigoDetalle().equals(eliminarEventoDTO.idDetalle()))
+        Optional<DetalleCarrito> detalleOptional = carrito.getItems().stream()
+                .filter(detalle -> detalle.getCodigoDetalle().equals(eliminarEventoDTO.idDetalle()))
                 .findFirst();
 
         if (detalleOptional.isEmpty()) {
             throw new Exception("El evento no está en el carrito");
         }
 
-        // 4. Eliminar detalle
-        carrito.getItems().remove(detalleOptional.get());
+        DetalleCarrito detalleCarrito = detalleOptional.get();
 
-        // 5. Guardar cambios
+        // 4. Buscar el evento
+        Optional<Evento> eventoOptional = eventoRepo.buscarId(detalleCarrito.getIdEvento());
+
+        if (eventoOptional.isEmpty()) {
+            throw new Exception("El evento no fue encontrado");
+        }
+
+        Evento evento = eventoOptional.get();
+
+        // 5. Buscar la localidad
+        Localidad localidad = evento.getLocalidades()
+                .stream()
+                        .filter(l -> l.getNombre().equals(detalleCarrito.getNombreLocalidad()))
+                                .findFirst()
+                                        .orElseThrow(() -> new Exception("Localidad no encontrada"));
+
+        // 6. Devolver entradas vendidas
+        localidad.setEntradasVendidas(
+                localidad.getEntradasVendidas() - detalleCarrito.getCantidad());
+
+        // 7. Eliminar detalle
+        carrito.getItems().remove(detalleCarrito);
+
+        // 8. Guardar cambios
         cuentaRepo.save(cuenta);
 
         return "Evento eliminado del carrito correctamente";
     }
+
+    /**
+     * Obtiene la información completa del carrito del cliente.
+     * Calcula el total general basado en precio y cantidad.
+     *
+     * @param idCliente identificador del cliente
+     * @return CarritoDTO con total, fecha e items
+     * @throws Exception si la cuenta no existe o no es válida
+     */
+    @Override
+    public CarritoDTO obtenerEventoCarrito(String idCliente) throws Exception {
+
+        Optional<Cuenta> cuentaOptional = cuentaRepo.buscarId(idCliente);
+
+        if (cuentaOptional.isEmpty()) {
+            throw new Exception("La cuenta no existe");
+        }
+
+        Cuenta cuenta = cuentaOptional.get();
+
+        if (!cuenta.getRol().equals(Rol.CLIENTE)) {
+            throw new Exception("El usuario no tiene carrito");
+        }
+
+        if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
+            throw new Exception("La cuenta ha sido eliminada");
+        }
+
+        Carrito carrito = cuenta.getCarrito();
+
+        if (carrito == null || carrito.getItems().isEmpty()) {
+            return new CarritoDTO(0, null, new ArrayList<>());
+        }
+
+        List<ItemCarritoDTO> itemsDTO = new ArrayList<>();
+        double total = 0;
+
+        for (DetalleCarrito detalle : carrito.getItems()) {
+
+            // Buscar el evento asociado al detalle del carrito
+            Optional<Evento> eventoOptional = eventoRepo.buscarId(detalle.getIdEvento());
+
+            if (eventoOptional.isEmpty()) {
+                throw new Exception("Evento no encontrado");
+            }
+
+            Evento evento = eventoOptional.get();
+
+            // Buscar la localidad seleccionada dentro del evento
+           Optional<Localidad> localidadOptional = evento.getLocalidades()
+                   .stream()
+                   .filter(l -> l.getNombre().equals(detalle.getNombreLocalidad()))
+                   .findFirst();
+
+           if (localidadOptional.isEmpty()) {
+               throw new Exception("Localidad no encontrada");
+           }
+
+           Localidad localidad = localidadOptional.get();
+
+            // Calcular subtotal del ítem
+           double subtotal = localidad.getPrecio() * detalle.getCantidad();
+
+           total += subtotal;
+
+            // Construir DTO del ítem
+           itemsDTO.add(ItemCarritoDTO.builder()
+                            .idEvento(evento.getId())
+                            .nombreEvento(evento.getNombre())
+                            .nombreLocalidad(localidad.getNombre())
+                            .cantidad(detalle.getCantidad())
+                            .precioUnitario(localidad.getPrecio())
+                            .subtotal(subtotal)
+                            .build());
+        }
+
+        return new CarritoDTO(
+                total,
+                carrito.getFecha(),
+                itemsDTO
+        );
+    }
+
+    /**
+     * Vacía completamente el carrito del cliente.
+
+     * Este proceso elimina todos los eventos agregados al carrito y devuelve
+     * las entradas reservadas a la disponibilidad de cada localidad del evento.
+     *
+     * @param idCliente identificador del cliente
+     * @return mensaje de confirmación
+     * @throws Exception si la cuenta no existe o no es válida
+     */
+    @Override
+    public String vaciarEventoCarrito(String idCliente) throws Exception {
+
+        // 1. Buscar la cuenta del cliente en el repositorio
+        Optional<Cuenta> cuentaOptional = cuentaRepo.buscarId(idCliente);
+
+        if (cuentaOptional.isEmpty()) {
+            throw new Exception("La cuenta no existe");
+        }
+        // 2. Obtener la cuenta encontrada
+        Cuenta cuenta = cuentaOptional.get();
+
+        // 3. Verificar que la cuenta pertenezca a un cliente
+        if (!cuenta.getRol().equals(Rol.CLIENTE)) {
+            throw new Exception("El usuario no tiene carrito");
+        }
+
+        // 4. Validar que la cuenta no esté eliminada
+        if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
+            throw new Exception("La cuenta ha sido eliminada");
+        }
+
+        // 5. Verificar si el carrito existe o si ya está vacío
+        if (cuenta.getCarrito() == null || cuenta.getCarrito().getItems().isEmpty()) {
+            return "El carrito ya está vacío";
+        }
+
+        // 6. Obtener el carrito del cliente
+        Carrito carrito = cuenta.getCarrito();
+
+        // 7. Recorrer todos los eventos agregados al carrito para devolver las entradas reservadas
+
+        for (DetalleCarrito detalle : carrito.getItems()) {
+
+            // 8. Buscar el evento asociado al detalle del carrito
+            Optional<Evento> eventoOptional = eventoRepo.buscarId(detalle.getIdEvento());
+
+            // 9. Validar que el evento exista
+            if (eventoOptional.isEmpty()) {
+                throw new Exception("Evento no encontrado");
+            }
+
+            // 10. Obtener el evento encontrado
+            Evento evento = eventoOptional.get();
+
+            // 11. Buscar la localidad seleccionada dentro del evento
+            Localidad localidad = evento.getLocalidades()
+                    .stream()
+                    .filter(l -> l.getNombre().equals(detalle.getNombreLocalidad()))
+                    .findFirst()
+                    .orElseThrow(() -> new Exception("Localidad no encontrada"));
+
+            // 12. Restar las entradas vendidas previamente reservadas en el carrito
+            localidad.setEntradasVendidas(
+                    localidad.getEntradasVendidas() - detalle.getCantidad());
+        }
+
+        // 13. Vaciar todos los items del carrito
+        carrito.getItems().clear();
+
+
+        // 14. Guardar los cambios realizados en la cuenta y el carrito
+        cuentaRepo.save(cuenta);
+
+        // 15. Retornar mensaje de confirmación
+        return "Carrito vaciado correctamente";
+    }
 }
+
+/**
+ * editarEventoCarrito( 6. Obtener la localidad anterior del detalle) Opción al <OPTIONAL>
+
+ * Optional<Localidad> localidadAnteriorOptional = evento.getLocalidades()
+ *         .stream()
+ *         .filter(localidad -> localidad.getNombre().equals(detalleCarrito.getNombreLocalidad()))
+ *         .findFirst();
+
+ * if (localidadAnteriorOptional.isEmpty()) {
+ *     throw new Exception("Localidad anterior no encontrada");
+ * }
+
+ * Localidad localidadAnterior = localidadAnteriorOptional.get();
+ */

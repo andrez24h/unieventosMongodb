@@ -7,6 +7,7 @@ import dev.andresm.unieventosMongodb.dto.cupon.*;
 import dev.andresm.unieventosMongodb.repositorios.CuentaRepo;
 import dev.andresm.unieventosMongodb.repositorios.CuponRepo;
 import dev.andresm.unieventosMongodb.servicios.interfaces.CuponServicio;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +28,17 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CuponServicioImp implements CuponServicio {
+
     private final CuponRepo cuponRepo;;
     private final CuentaRepo cuentaRepo;
 
 
-    public CuponServicioImp(CuponRepo cuponRepo, CuentaRepo cuentaRepo) {
+    /**public CuponServicioImp(CuponRepo cuponRepo, CuentaRepo cuentaRepo) {
         this.cuponRepo = cuponRepo;
         this.cuentaRepo = cuentaRepo;
-    }
+    }*/
 
     /**
      * =================================================================================

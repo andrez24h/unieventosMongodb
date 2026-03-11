@@ -23,6 +23,5 @@ public record CrearEventoDTO(
         @NotNull Ubicacion ubicacion,
         @NotNull LocalDateTime fecha,
         @NotNull List<Localidad> localidades
-        ) {
-}
+        ) {}
 

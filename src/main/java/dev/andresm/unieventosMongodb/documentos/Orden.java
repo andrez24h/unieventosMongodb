@@ -25,6 +25,7 @@ public class Orden implements Serializable {
     private String idCupon;
     private String codigoPasarela;
     private Pago pago;
+    private EstadoOrden estado;
     private double total;
     private LocalDateTime fecha;
     private List<DetalleOrden> items;

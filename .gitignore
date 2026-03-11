@@ -12,3 +12,6 @@ out/
 
 # Firebase credentials
 src/main/resources/*.json
+*firebase*.json
+*serviceAccount*.json
+firebase-*.json

@@ -1,6 +1,7 @@
 package dev.andresm.unieventosMongodb.servicios.implement;
 
 import dev.andresm.unieventosMongodb.documentos.Cuenta;
+import dev.andresm.unieventosMongodb.documentos.EstadoEvento;
 import dev.andresm.unieventosMongodb.documentos.Evento;
 import dev.andresm.unieventosMongodb.documentos.TipoEvento;
 import dev.andresm.unieventosMongodb.dto.evento.*;
@@ -41,11 +42,11 @@ public class EventoServicioImp implements EventoServicio {
 
     /**
      * - Crea un nuevo evento en el sistema.
-     * <p>
+
      * Valida que:
      * - El nombre del evento no esté previamente registrado
      * - La cuenta asociada al evento exista
-     * <p>
+     * <
      * Si todas las validaciones se cumplen:
      * - Se construye el evento usando Builder
      * - Se guarda en la base de datos
@@ -135,18 +136,27 @@ public class EventoServicioImp implements EventoServicio {
     }
 
     /**
-     * Elimina un evento por ID.
+     * Elimina un evento del sistema de forma lógica.
+
+     * @param id identificador del evento
+     * @return id del evento eliminado
+     * @throws Exception si el evento no existe
      */
     @Override
     public String eliminarEvento(String id) throws Exception {
 
+        // 1. Buscar el evento en la base de datos usando el id recibido
         Optional<Evento> eventoOptional = eventoRepo.buscarId(id);
 
+        // 2. Verificar si el evento existe
         if (eventoOptional.isEmpty()) {
             throw new Exception("No existe el evento");
         }
 
+        // 3. Eliminar el evento de la base de datos
         eventoRepo.delete(eventoOptional.get());
+
+        // 4. Retornar el id del evento desactivado
         return id;
     }
 
@@ -186,7 +196,32 @@ public class EventoServicioImp implements EventoServicio {
     @Override
     public List<ItemEventoDTO> listarEventos() {
 
-        return eventoRepo.listarTodos().stream().map(this::mapItemEvento).collect(Collectors.toList());
+        // 1. Obtener todos los eventos almacenados en la base de datos
+        return eventoRepo.listarTodos().stream()
+
+                // 2. Convertir cada evento en un DTO de tipo ItemEventoDTO
+                .map(this::mapItemEvento)
+
+                // 3. Recolectar los resultados en una lista y retornarla
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ItemEventoDTO> listarEventosCliente() {
+
+        // Obtener fecha actual del sistema
+        LocalDateTime fechaActual = LocalDateTime.now();
+
+        // Consultar eventos disponibles en MongoDB
+        List<Evento> eventos = eventoRepo.buscarEventoDisponibles(
+                EstadoEvento.ACTIVO,
+                fechaActual
+        );
+
+        // Convertir a DTO
+        return eventos.stream()
+                .map(this::mapItemEvento)
+                .toList();
     }
 
     /* =======================   DISPONIBILIDAD   =========================================== */
@@ -194,7 +229,7 @@ public class EventoServicioImp implements EventoServicio {
      * - Verifica disponibilidad de localidades.
      */
     @Override
-    public boolean disponiblidad(DisponibilidadEventoDTO disponiblidadEventoDTO) throws Exception {
+    public boolean disponibilidad(DisponibilidadEventoDTO disponiblidadEventoDTO) throws Exception {
 
        Optional<Evento> eventoOptional = eventoRepo.buscarId(disponiblidadEventoDTO.idEvento());;
 
@@ -227,27 +262,135 @@ public class EventoServicioImp implements EventoServicio {
     /* ========================   FILTROS   =================================================== */
 
     /**
-     * Filtra eventos según los criterios enviados en el DTO.
+     * - Filtrado dinámico de eventos.
 
-     * Los criterios son opcionales:
-     * - Nombre (búsqueda parcial)
-     * - Ciudad
-     * - Tipo de evento
-     * - Fecha específica (día)
+     * Este método delega la búsqueda al repositorio utilizando
+     * los métodos específicos ya definidos en EventoRepo.
 
-     * @param filtroEventoDTO criterios de filtrado
-     * @return lista de eventos que cumplen los criterios
+     * Estrategia:
+     * - Se evalúan los campos no nulos del DTO.
+     * - Se llama al método más específico posible del repositorio.
+     * - Si no hay filtros, se listan todos los eventos.
+
+     * Validación adicional:
+     * - Después de obtener los resultados desde MongoDB,
+     *   se filtran en memoria únicamente los eventos con estado ACTIVO.
+
+     * Esto garantiza que los clientes solo puedan visualizar
+     * eventos disponibles en la plataforma.
+     *
+     * @param filtroEventoDTO DTO con criterios opcionales de búsqueda.
+     * @return Lista de eventos activos filtrados convertidos a ItemEventoDTO.
      */
     @Override
     public List<ItemEventoDTO> filtrarEventos(FiltroEventoDTO filtroEventoDTO) {
 
-        return eventoRepo.listarTodos().stream()
-                .filter(evento ->
-                        (filtroEventoDTO.nombre() == null || evento.getNombre().toLowerCase().contains(filtroEventoDTO.nombre().toLowerCase())) &&
-                                (filtroEventoDTO.ciudad() == null || evento.getCiudad().equalsIgnoreCase(filtroEventoDTO.ciudad())) &&
-                                (filtroEventoDTO.tipo() == null || evento.getTipo().equals(filtroEventoDTO.tipo())) &&
-                                (filtroEventoDTO.fecha() == null || evento.getFecha().toLocalDate().isEqual(filtroEventoDTO.fecha()))
-                )
+        /**
+         * Lista que almacenará el resultado de la consulta.
+         * Aquí se guardarán los eventos que retorne MongoDB
+         * según el filtro aplicado.
+         */
+        List<Evento> eventos;
+
+        /*
+         * Extraemos los valores del DTO para trabajar con ellos
+         * de forma más clara y legible.
+         *
+         * Esto evita estar escribiendo repetidamente:
+         * filtroEventoDTO.nombre(), filtroEventoDTO.tipo(), etc.
+         *
+         * Además mejora la legibilidad del código en los condicionales.
+         */
+        String nombre = filtroEventoDTO.nombre();
+        TipoEvento tipo = filtroEventoDTO.tipo();
+        String ciudad = filtroEventoDTO.ciudad();
+        LocalDate fecha = filtroEventoDTO.fecha();
+
+        /*
+         * ===============================
+         * 1️. FILTROS MÁS ESPECÍFICOS
+         * ===============================
+         */
+
+        // Fecha + Tipo + Ciudad
+        if (fecha != null && tipo != null && ciudad != null) {
+            eventos = eventoRepo.buscarPorFechaTipoYCiudad(
+                    fecha.atStartOfDay(),
+                    fecha.atTime(23,59,59),
+                    tipo,
+                    ciudad
+            );
+        }
+
+        // Fecha + Tipo
+        else if (fecha != null && tipo != null) {
+            eventos = eventoRepo.buscarPorFechaYTipo(
+                    fecha.atStartOfDay(),
+                    fecha.atTime(23,59,59),
+                    tipo
+            );
+        }
+
+        // Fecha + Ciudad
+        else if (fecha != null && ciudad != null) {
+            eventos = eventoRepo.buscarPorFechaYCiudad(
+                    fecha.atStartOfDay(),
+                    fecha.atTime(23,59,59),
+                    ciudad
+            );
+        }
+
+        // Tipo + Ciudad
+        else if (tipo != null && ciudad != null) {
+            eventos = eventoRepo.buscarPorTipoYCiudad(
+                    tipo,
+                    ciudad
+            );
+        }
+
+        // FILTRO POR NOMBRE Y CIUDAD
+        else if (nombre != null && !nombre.isBlank() &&
+                ciudad != null && !ciudad.isBlank()) {
+            eventos = eventoRepo.buscarPorNombreYCiudad(nombre, ciudad);
+        }
+
+        /*
+         * ===============================
+         * 2️. FILTROS INDIVIDUALES
+         * ===============================
+         */
+
+        else if (fecha != null) {
+            eventos = eventoRepo.buscarPorFecha(
+                    fecha.atStartOfDay(),
+                    fecha.atTime(23,59,59)
+            );
+        }
+
+        else if (tipo != null) {
+            eventos = eventoRepo.buscarPorTipo(tipo);
+        }
+
+        else if (ciudad != null && !ciudad.isBlank()) {
+            eventos = eventoRepo.buscarPorCiudad(ciudad);
+        }
+
+        else if (nombre != null && !nombre.isBlank()) {
+            eventos = eventoRepo.buscarPorNombreParcial(nombre);
+        }
+
+        /*
+         * ===============================
+         * 3️. SIN FILTROS
+         * ===============================
+         */
+
+        else {
+            eventos = eventoRepo.listarTodos();
+        }
+        // Solo se devuelven eventos ACTIVOS
+        return eventos.stream()
+                .filter(evento -> evento.getEstado() == EstadoEvento.ACTIVO)
                 .map(this::mapItemEvento)
                 .toList();
     }

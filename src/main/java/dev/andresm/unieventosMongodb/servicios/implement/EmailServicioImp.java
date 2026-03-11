@@ -4,7 +4,6 @@ import dev.andresm.unieventosMongodb.dto.email.EmailDTO;
 import dev.andresm.unieventosMongodb.servicios.interfaces.EmailServicio;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -38,8 +37,7 @@ public class EmailServicioImp implements EmailServicio {
 
      * Es inyectado por Spring mediante inyección de dependencias.
      */
-    @Autowired
-    private final JavaMailSender javaMailSender;
+   private final JavaMailSender javaMailSender;
 
     /**
      * =================================================================================
@@ -60,6 +58,7 @@ public class EmailServicioImp implements EmailServicio {
      * @throws Exception si ocurre un error crítico durante la creación
      *                   o envío del correo.
      */
+    @Override
     public boolean enviarEmail (EmailDTO emailDTO) throws Exception {
 
         /**

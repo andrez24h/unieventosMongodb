@@ -8,16 +8,23 @@ import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
+import com.thoughtworks.qdox.model.expression.Or;
 import dev.andresm.unieventosMongodb.documentos.*;
+import dev.andresm.unieventosMongodb.dto.cupon.CrearCuponDTO;
 import dev.andresm.unieventosMongodb.dto.cupon.RedimirCuponDTO;
+import dev.andresm.unieventosMongodb.dto.email.EmailDTO;
 import dev.andresm.unieventosMongodb.dto.orden.CrearOrdenDTO;
 import dev.andresm.unieventosMongodb.dto.orden.ItemOrdenDTO;
+import dev.andresm.unieventosMongodb.dto.orden.ItemOrdenDetalleDTO;
+import dev.andresm.unieventosMongodb.dto.orden.OrdenDetalleDTO;
 import dev.andresm.unieventosMongodb.repositorios.CuentaRepo;
 import dev.andresm.unieventosMongodb.repositorios.CuponRepo;
 import dev.andresm.unieventosMongodb.repositorios.EventoRepo;
 import dev.andresm.unieventosMongodb.repositorios.OrdenRepo;
 import dev.andresm.unieventosMongodb.servicios.interfaces.CuponServicio;
+import dev.andresm.unieventosMongodb.servicios.interfaces.EmailServicio;
 import dev.andresm.unieventosMongodb.servicios.interfaces.OrdenServicio;
+import dev.andresm.unieventosMongodb.servicios.interfaces.QRServicio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,21 +59,24 @@ public class OrdenServicioImp implements OrdenServicio {
     private final CuponServicio cuponServicio;
     private final EventoRepo eventoRepo;
     private final OrdenRepo ordenRepo;
+    private final EmailServicio emailServicio;
+    private final QRServicio qrServicio;
 
     // =========================================================
     // MÉTODO: REALIZAR PAGO
     // =========================================================
+
     /**
      * Genera una preferencia de pago en MercadoPago
      * para una orden previamente creada en el sistema.
-
+     * <p>
      * Flujo del proceso:
      * 1. Se obtiene la orden desde la base de datos.
      * 2. Se construyen los ítems que se enviarán a la pasarela.
      * 3. Se configuran credenciales y URLs de retorno.
      * 4. Se crea la preferencia en MercadoPago.
      * 5. Se guarda el código de la pasarela en la orden.
-
+     * <p>
      * IMPORTANTE:
      * El precio ya fue validado y almacenado en el DetalleOrden
      * al momento de crear la orden (precio congelado).
@@ -102,7 +112,7 @@ public class OrdenServicioImp implements OrdenServicio {
             itemsPasarela.add(itemRequest);
         }
 
-        // 4.Configurar credenciales de MercadoPago
+        // 4. Configurar credenciales de MercadoPago
         MercadoPagoConfig.setAccessToken("ACCESS_TOKEN");
 
         // 5. Configurar URLs de retorno (Frontend)
@@ -151,12 +161,21 @@ public class OrdenServicioImp implements OrdenServicio {
 
      * Solo se procesan notificaciones de tipo "payment".
 
-     * Flujo:
-     * 1. Verificar tipo de notificación.
-     * 2. Obtener el id del pago enviado por MercadoPago.
-     * 3. Consultar el pago en la pasarela.
-     * 4. Obtener el id de la orden desde los metadatos.
-     * 5. Actualizar la orden con la información del pago.
+     * Flujo del proceso:
+     * 1. Verificar el tipo de notificación recibida.
+     * 2. Obtener el identificador del pago enviado por MercadoPago.
+     * 3. Consultar el pago en la pasarela utilizando el id recibido.
+     * 4. Recuperar el id de la orden almacenado en los metadatos del pago.
+     * 5. Buscar la orden correspondiente en la base de datos.
+     * 6. Construir el objeto Pago del sistema a partir de la respuesta de la pasarela.
+     * 7. Asociar el pago a la orden.
+     * 8. Si el pago fue aprobado:
+     *      - Actualizar el estado de la orden a PAGADA.
+     *      - Actualizar el inventario de entradas del evento.
+     *      - Enviar el correo de confirmación de compra al cliente.
+     * 9. Si el pago fue rechazado:
+     *      - Marcar la orden como FALLIDA.
+     * 10. Guardar la orden actualizada en la base de datos.
      */
     @Override
     public void recibirNotificacionMercadoPago(Map<String, Object> request) {
@@ -175,28 +194,50 @@ public class OrdenServicioImp implements OrdenServicio {
                 // 4. Extraemos los números de la cadena, es decir, el id del pago
                 String idPago = input.replaceAll("\\D+", "");
 
-                // 5. Se crea el cliente de MercadoPago y se obtiene el pago con el id
+                // 5️. Consultar el pago en MercadoPago utilizando su API
                 PaymentClient client = new PaymentClient();
                 Payment payment = client.get(Long.parseLong(idPago));
 
-                // 6. Obtener el id de la orden asociada al pago que viene en los metadatos
-                String idOrden = payment.getMetadata().get("id_orden").toString();
+                // 6️. Obtener el id de la orden almacenado en los metadatos del pago
+                String idOeden = payment.getMetadata().get("id_orden").toString();
 
-                // 7. Se obtiene la orden guardada en la base de datos
-                Orden orden = obtenerOrden(idOrden);
+                // 7️. Buscar la orden en la base de datos
+                Orden orden = obtenerOrden(idOeden);
 
-                // 8. Se crea el objeto Pago a partir de la respuesta de MercadoPago
+                // 8️. Crear el objeto Pago del sistema a partir de la respuesta de MercadoPago
                 Pago pago = crearPago(payment);
 
-                // 9. Se asigna el pago a la orden
+                // 9️⃣ Asociar el pago a la orden
                 orden.setPago(pago);
 
-                // NUEVO: actualizar estado e inventario
+                // =========================================================
+                // PROCESAR RESULTADO DEL PAGO
+                // =========================================================
+
+                // 10️. Si el pago fue aprobado
                 if ("approved".equals(payment.getStatus())) {
+
+                    // Marcar la orden como pagada
                     orden.setEstado(EstadoOrden.PAGADA);
 
+                    // - Enviar correo de confirmación de compra
+                    // Se construye el objeto EmailDTO con la información de la orden
+                    EmailDTO email = new EmailDTO(
+                            "cliente@email.com",
+                            "Factura de compra - UniEventos",
+                            "Su compra fue realizada con éxito.\n\nOrden: " + orden.getId()
+                    );
+
+                    // Se utiliza el servicio de correo del sistema
+                    emailServicio.enviarEmail(email);
+
+                    // =====================================================
+                    // ACTUALIZAR INVENTARIO DE ENTRADAS
+                    // =====================================================
+
                     for (DetalleOrden detalle : orden.getItems()) {
-                        // 9.1 Buscar evento
+
+                        // 10.1 Buscar el evento asociado al ítem
                         Optional<Evento> optionalEvento = eventoRepo.buscarId(detalle.getIdEvento());
 
                         if (optionalEvento.isEmpty()) {
@@ -205,11 +246,11 @@ public class OrdenServicioImp implements OrdenServicio {
 
                         Evento evento = optionalEvento.get();
 
-                        // 9.2 Buscar localidad
+                        // 10.2 Buscar la localidad dentro del evento
                         Optional<Localidad> optionalLocalidad = evento.getLocalidades()
                                 .stream()
-                                        .filter(l ->l.getNombre().equals(detalle.getNombreLocalidad()))
-                                                .findFirst();
+                                .filter(localidad -> localidad.getNombre().equals(detalle.getNombreLocalidad()))
+                                .findFirst();
 
                         if (optionalLocalidad.isEmpty()) {
                             throw new RuntimeException("Localidad no encontrada");
@@ -217,26 +258,33 @@ public class OrdenServicioImp implements OrdenServicio {
 
                         Localidad localidad = optionalLocalidad.get();
 
-                        // 9.3 Aumentar entradas vendidas
+                        // 10.3 Aumentar el número de entradas vendidas
                         localidad.setEntradasVendidas(
                                 localidad.getEntradasVendidas() + detalle.getCantidad()
                         );
 
-                        // 9.4 Recalcular porcentaje
+                        // 10.4 Recalcular el porcentaje de venta de la localidad
                         double porcentaje =
                                 (double) localidad.getEntradasVendidas() / localidad.getCapacidadMaxima() * 100;
                         localidad.setPorcentajeVenta(porcentaje);
 
+                        // 10.5 Guardar el evento actualizado
                         eventoRepo.save(evento);
                     }
+
+                    // 11️. Si el pago fue rechazado
                 } else if ("rejected".equals(payment.getStatus())) {
+
+                    // Marcar la orden como fallida
                     orden.setEstado(EstadoOrden.FALLIDA);
                 }
 
-                // 10. Guardar la orden actualizada
+                // 12️. Guardar la orden actualizada en la base de datos
                 ordenRepo.save(orden);
             }
         } catch (Exception e) {
+
+            // Manejo básico de errores para evitar que el webhook falle
             e.printStackTrace();
         }
     }
@@ -277,8 +325,8 @@ public class OrdenServicioImp implements OrdenServicio {
         Cuenta cuenta = optionalCuenta.get();
 
         // 2. Validar que la cuenta esté activa
-        if (cuenta.getEstado().equals(EstadoCuenta.INACTIVO)) {
-            throw new Exception("El cliente no se encuentra disponible");
+        if (cuenta.getEstado() == EstadoCuenta.INACTIVO) {  // equals(EstadoCuenta.INACTIVO)), Los enum en Java son instancias únicas, entonces == es
+            throw new Exception("El cliente no se encuentra disponible");                  // (más rápido, más limpio, estándar para enums)
         }
 
         // 3 Buscar el cupón si se proporcionó
@@ -357,10 +405,78 @@ public class OrdenServicioImp implements OrdenServicio {
         //  NUEVO: Estado inicial de la orden
         orden.setEstado(EstadoOrden.CREADA);
 
+        /** =========================================================
+        //      CUPÓN POR PRIMERA COMPRA
+        // =========================================================
+
+         * Si el cliente está realizando su primera compra en el sistema
+         * se genera automáticamente un cupón individual de descuento
+         * del 10% para futuras compras.
+
+         * El cupón es creado utilizando el servicio de cupones y
+         * posteriormente se envía al correo del cliente registrado
+         * en la plataforma.
+         */
+        // 6.1 Verificar si es la primera compra
+        boolean primeraCompra = esPrimeraCompra(crearOrdenDTO.idCliente());
+
+        if (primeraCompra) {
+
+            List<String> clientes = List.of(crearOrdenDTO.idCliente());
+
+            String codigoCupon = cuponServicio.crearCupon(
+                    new CrearCuponDTO(
+                            "Cupón Primera Compra",
+                            "Descuento del 10% por tu primera compra",
+                            10,
+                            LocalDateTime.now().plusYears(1),
+                            TipoCupon.INDIVIDUAL,
+                            clientes
+                    )
+            );
+
+            EmailDTO emailCupon = new EmailDTO(
+                    cuenta.getEmail(),
+                    "Cupón por tu primera compra - UniEventos",
+                    "Gracias por tu primera compra.\n\nTu código es:\n" + codigoCupon
+            );
+
+            emailServicio.enviarEmail(emailCupon);
+        }
+
         // 7. Guardar la orden en la base de datos
         ordenRepo.save(orden);
 
-        // 8. Retornar el ID de la orden
+        // 8. Generar contenido del QR para la orden
+        String contenidoQR = "ORDEN:" + orden.getId();
+
+        // 9. Generar el QR en Base64
+        String qrBase64 = qrServicio.generarQR(contenidoQR);
+
+        // 10. Construir el contenido del correo (sin HTML)
+        String mensajeEmail =
+                "Compra confirmada\n\n" +
+                        "Orden: " + orden.getId() + "\n" +
+                        "Fecha: " + orden.getFecha() + "\n" +
+                        "Total: " + orden.getTotal() + "\n\n" +
+                        "Este es el código QR de su entrada:\n" +
+                        qrBase64;
+
+        // 11. Crear el DTO del correo
+        EmailDTO emailDTO = new EmailDTO(
+                cuenta.getEmail(),
+                "Confirmación de compra - UniEventos",
+                mensajeEmail
+        );
+
+        // 12. Enviar el correo
+        emailServicio.enviarEmail(emailDTO);
+
+        // 13. Vaciar carrito
+        cuenta.getCarrito().getItems().clear();
+        cuentaRepo.save(cuenta);
+
+        // 14. Retornar ID
         return orden.getId();
     }
 
@@ -398,12 +514,12 @@ public class OrdenServicioImp implements OrdenServicio {
     @Override
     public List<ItemOrdenDTO> listarOrdenesPorEvento(String idEvento) throws Exception {
 
-        List<ItemOrdenDTO> lista = ordenRepo.listarOrdenesEvento(idEvento);
+        List<ItemOrdenDTO> ordenes = ordenRepo.listarOrdenesPorEvento(idEvento);
 
-        if (lista.isEmpty()) {
+        if (ordenes.isEmpty()) {
             throw new Exception("No existen órdenes asociadas a este evento");
         }
-        return lista;
+        return ordenes;
     }
 
     /**
@@ -421,12 +537,110 @@ public class OrdenServicioImp implements OrdenServicio {
     @Override
     public List<ItemOrdenDTO> listarOrdenesPorUsuario(String idUsuario) throws Exception {
 
-        List<ItemOrdenDTO> lista = ordenRepo.listarOrdenesPorUsuario(idUsuario);
+        List<ItemOrdenDTO> ordenes = ordenRepo.listarOrdenesPorUsuario(idUsuario);
 
-        if (lista.isEmpty()) {
+        if (ordenes.isEmpty()) {
             throw new Exception("El usuario no tiene órdenes registradas");
         }
-        return lista;
+        return ordenes;
+    }
+
+    /**
+     * Obtiene el detalle completo de una orden incluyendo
+     * los ítems comprados por el cliente.
+
+     * Este método realiza:
+
+     * 1. Búsqueda de la orden en la base de datos.
+     * 2. Conversión de los objetos DetalleOrden a DTO.
+     * 3. Generación de un código QR para cada ítem de la orden comprada.
+     * 4. Construcción del DTO final OrdenDetalleDTO.
+
+     * El QR se genera utilizando el servicio QRServicio y
+     * contiene información que identifica la entrada para
+     * su validación en el evento.
+
+     * @param idOrden Identificador de la orden.
+     * @return OrdenDetalleDTO con el detalle completo.
+     * @throws Exception si la orden no existe o falla la generación del QR.
+     */
+    @Override
+    public OrdenDetalleDTO obtenerItemsOrden(String idOrden) throws Exception {
+
+        // 1. Obtener la orden almacenada en la base de datos
+        Orden orden = obtenerOrden(idOrden);
+
+        // 2. Convertir cada DetalleOrden en un DTO incluyendo su QR
+        List<ItemOrdenDetalleDTO> itemsDTO = orden.getItems().stream()
+                .map(item -> {
+
+                    try {
+
+                        /**
+                         * 3. Construcción del contenido que se codificará
+                         * dentro del código QR.
+
+                         * Este contenido puede ser utilizado posteriormente
+                         * para validar la entrada en el evento.
+                         */
+                        String contenidoQR =
+                                "ORDEN:" + orden.getId() +
+                                "|EVENTO:" + item.getIdEvento() +
+                                "|LOCALIDAD:" + item.getNombreLocalidad() +
+                                "|CANTIDAD:" + item.getCantidad();
+
+                        /**
+                         * 4. Generar el QR utilizando el servicio QR
+                         */
+                        String qrBase64 = qrServicio.generarQR(contenidoQR);
+
+                        /**
+                         * 5. Construir el DTO del ítem incluyendo el QR
+                         */
+                        return new ItemOrdenDetalleDTO(
+                                item.getIdEvento(),
+                                item.getCantidad(),
+                                item.getPrecioUnitario(),
+                                item.getNombreLocalidad(),
+                                qrBase64
+                        );
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error generando QR");
+                    }
+                }) .toList();
+        /**
+         * 6. Construcción del DTO final que contiene
+         * la información general de la orden
+         */
+        return new OrdenDetalleDTO(
+                orden.getId(),
+                orden.getIdCliente(),
+                orden.getFecha(),
+                orden.getTotal(),
+                orden.getEstado().name(),
+                itemsDTO
+        );
+    }
+
+    /**
+     * Verifica si el cliente está realizando su primera compra.
+
+     * Flujo:
+     * 1. Consultar las órdenes existentes del cliente.
+     * 2. Si no existen órdenes, se considera primera compra.
+
+     * @param idCliente identificador del cliente
+     * @return true si el cliente no tiene órdenes registradas
+     */
+    @Override
+    public boolean esPrimeraCompra(String idCliente) {
+
+        // 1️. Consultar en la base de datos las órdenes del cliente
+        List<Orden> ordenes = ordenRepo.buscarOrdenesPorCliente(idCliente);
+
+        // 2️. Si la lista está vacía significa que el cliente aún no ha realizado compras
+        //    por lo tanto se considera su primera compra
+        return ordenes.isEmpty();
     }
 }
 
@@ -441,25 +655,25 @@ public class OrdenServicioImp implements OrdenServicio {
  */
 
 /**
- * // 1️⃣ Buscar evento
+ * // 1️. Buscar evento
  * Optional<Evento> optionalEvento = eventoRepo.buscarId(detalle.getIdEvento());
- *
+
  * if (optionalEvento.isEmpty()) {
  *     throw new RuntimeException("Evento no encontrado");
  * }
- *
+
  * Evento evento = optionalEvento.get();
- *
- * // 2️⃣ Buscar localidad
+
+ * // 2️. Buscar localidad
  * Optional<Localidad> optionalLocalidad = evento.getLocalidades()
  *         .stream()
  *         .filter(l -> l.getNombre().equals(detalle.getNombreLocalidad()))
  *         .findFirst();
- *
+
  * if (optionalLocalidad.isEmpty()) {
  *     throw new RuntimeException("Localidad no encontrada");
  * }
- *
+
  * Localidad localidad = optionalLocalidad.get();
  */
 

@@ -11,11 +11,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositorio encargado de la gestión y consulta de órdenes en MongoDB.
+ * Extiende MongoRepository para proporcionar operaciones CRUD básicas.
+ */
 @Repository
 public interface OrdenRepo extends MongoRepository<Orden, String> {
 
     /**
-     * 🔹 Buscar una orden por su ID.
+     * - Buscar una orden por su ID.
      * Se usa _id porque MongoDB maneja el identificador con ese nombre.
      */
     @Query("{ _id: ?0 }")
@@ -31,7 +35,7 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
     List<Orden> buscarOrdenesPorCliente(String idCliente);
 
     /**
-     * 🔹 Buscar una orden por el código devuelto por la pasarela de pago.
+     * - Buscar una orden por el código devuelto por la pasarela de pago.
      */
     @Query("{ codigoPasarela: ?0 }")
     Optional<Orden> buscarPorCodigoPasarela(String codigoPasarela);
@@ -43,43 +47,59 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
     List<Orden> buscarPorCupon(String idCupon);
 
     /**
-     * 🔹 Listar órdenes realizadas dentro de un rango de fechas.
+     * - Listar órdenes realizadas dentro de un rango de fechas.
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 } }")
     List<Orden> buscarPorRangoFechas(LocalDateTime inicio, LocalDateTime fin);
 
     /**
-     * Lista las órdenes de un cliente incluyendo información básica de su cuenta.
-     * Se utiliza una agregación de MongoDB para:
-     * - Filtrar las órdenes por cliente
-     * - Unir la orden con la colección de cuentas
-     * - Extraer datos del usuario
+     * Lista las órdenes de un usuario utilizando Aggregation.
+     * Flujo:
+     * 1. Filtra por idCliente.
+     * 2. Realiza lookup con la colección "cuentas".
+     * 3. Proyecta únicamente los campos necesarios.
      *
-     * @param idCliente ID de la cuenta del cliente
+     * @param idUsuario Identificador del cliente
      * @return Lista de órdenes resumidas (ItemOrdenDTO)
      */
     @Aggregation({
             "{ $match: { idCliente: ?0 } }",
+            "{ $lookup: { from: 'cuentas', localField: 'idCliente',foreignField: '_id', as: 'cuenta' } }",
+            "{ $unwind: '$cuenta' }",
+            "{ $project: { " +
+                    "idOrden: '$_id', " +
+                    "fecha: 1, " +
+                    "total: 1, " +
+                    "estado: 1, " +
+                    "email: '$cuenta.email', " +
+                    "rol: '$cuenta.rol', " +
+                    "estadoCuenta: '$cuenta.estado' " +
+                    "} }"
+    })
+    List<ItemOrdenDTO> listarOrdenesPorUsuario(String idUsuario);
+
+    /**
+     * Lista las órdenes que contienen un evento específico
+     * dentro de sus ítems utilizando Aggregation.
+     *
+     * @param idEvento Identificador del evento
+     * @return Lista de órdenes resumidas (ItemOrdenDTO)
+     */
+    @Aggregation({
+            "{ $match: { 'items.idEvento': ?0 } }",
             "{ $lookup: { from: 'cuentas', localField: 'idCliente', foreignField: '_id', as: 'cuenta' } }",
             "{ $unwind: '$cuenta' }",
             "{ $project: { " +
+                    "idOrden: '$_id', " +
                     "fecha: 1, " +
                     "total: 1, " +
-                    "'pago.estado': 1, " +
-                    "nombreUsuario: '$cuenta.usuario.nombre', " +
-                    "correoUsuario: '$cuenta.email' " +
+                    "estado: 1, " +
+                    "email: '$cuenta.email', " +
+                    "rol: '$cuenta.rol', " +
+                    "estadoCuenta: '$cuenta.estado' " +
                     "} }"
     })
-    List<ItemOrdenDTO> listarOrdenesCliente(String idCliente);
-
-    /**
-     * Obtiene todas las órdenes que contengan un evento específico.
-     *
-     * @param idEvento ID del evento
-     * @return Lista de órdenes donde aparece el evento
-     */
-    @Query("{ 'items.idEvento': ?0 }")
-    List<Orden> buscarOrdenesPorEvento(String idEvento);
+    List<ItemOrdenDTO> listarOrdenesPorEvento(String idEvento);
 }
 /*
 ================================================================================
@@ -140,3 +160,4 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
 
 ================================================================================
 */
+

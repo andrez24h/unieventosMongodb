@@ -4,6 +4,7 @@ import com.mercadopago.resources.preference.Preference;
 import dev.andresm.unieventosMongodb.documentos.Orden;
 import dev.andresm.unieventosMongodb.dto.orden.CrearOrdenDTO;
 import dev.andresm.unieventosMongodb.dto.orden.ItemOrdenDTO;
+import dev.andresm.unieventosMongodb.dto.orden.OrdenDetalleDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,37 @@ public interface OrdenServicio {
      */
     List<ItemOrdenDTO> listarOrdenesPorUsuario(String idUsuario) throws Exception;
 
+    /**
+     * Obtiene la información detallada de una orden específica.
+     * Incluye los ítems (DetalleOrden) asociados a la compra.
 
+     * @param idOrden identificador único de la orden
+     * @return DTO con la información completa de la orden y sus ítems
+     * @throws Exception si la orden no existe en el sistema
+     */
+    OrdenDetalleDTO obtenerItemsOrden(String idOrden) throws Exception;
 
+    /**
+     * Valida si un cliente puede aplicar el cupón de primera compra.
+     * Un cliente solo puede usar este cupón si no tiene órdenes registradas.
+
+     * @param idCliente identificador del cliente
+     * @return true si puede usar el cupón
+     */
+    boolean esPrimeraCompra(String idCliente);
 }
+
+/**
+ *
+
+ * Quita @Autowired por campo -> usa constructor injection
+ * Saca el AccessToken a configuración
+ * Maneja excepciones con una excepción personalizada
+ * Agrega logs en vez de printStackTrace
+
+ * Maneja transiciones de estado expl&iacute;citas
+
+ * Si haces eso..;
+
+ * Tu proyecto deja de ser académico y se vuelve portfolio serio.
+ */
