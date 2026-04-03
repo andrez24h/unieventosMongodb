@@ -47,6 +47,7 @@ public class CuentaServicioImp implements CuentaServicio {
     private final JWTUtils jwtUtils;
     private final CuponServicio cuponServicio;
     private final EventoRepo eventoRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
      * Crea una nueva cuenta de usuario.
@@ -142,7 +143,6 @@ public class CuentaServicioImp implements CuentaServicio {
      * @return Contraseña encriptada.
      */
     private String encriptarPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.encode(password);
     }
 
@@ -277,6 +277,15 @@ public class CuentaServicioImp implements CuentaServicio {
             // Obtenemos la cuenta del usuario a modificar y actualizamos sus datos.
             Cuenta cuentaModificada = optionalCuenta.get();
 
+           // Validar el estado de la cuenta
+            if (cuentaModificada.getEstado().equals(EstadoCuenta.INACTIVO)) {
+                throw new Exception("La cuenta se encuentra inactiva");
+            }
+
+            if (cuentaModificada.getEstado().equals(EstadoCuenta.ELIMINADO)) {
+                throw new Exception("La cuenta ha sido eliminada");
+            }
+
             // Validar si la cédula ya existe en otra cuenta
             if (existeCedula(cuenta.cedula(), cuenta.id())) {
                 throw new Exception("La cédula: " + cuenta.cedula() + " ya está registrada en otra cuenta.");
@@ -285,14 +294,6 @@ public class CuentaServicioImp implements CuentaServicio {
             // Validar si el correo ya existe en otra cuenta
             if (existeEmail(cuenta.email(), cuenta.id())) {
                 throw new Exception("El correo: " + cuenta.email() + " ya está registrado en otra cuenta.");
-            }
-
-            // Validar el estado de la cuenta
-            if (cuentaModificada.getEstado().equals(EstadoCuenta.INACTIVO)) {
-                throw new Exception("La cuenta se encuentra inactiva");
-            }
-            if (cuentaModificada.getEstado().equals(EstadoCuenta.ELIMINADO)) {
-                throw new Exception("La cuenta ha sido eliminada");
             }
 
             // Imprimir el ID original
@@ -580,17 +581,15 @@ public class CuentaServicioImp implements CuentaServicio {
      */
     @Override
     public TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception {
-        // Obtener y validar la cuenta
-        Cuenta cuenta = obtenerEmail(loginDTO.email());
 
-        // Validar la contraseña
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        // 1. Obtener y validar la cuenta
+        Cuenta cuenta = obtenerEmail(loginDTO.email());
 
         if (!passwordEncoder.matches(loginDTO.password(), cuenta.getPassword())) {
             throw new Exception("La contraseña es incorrecta");
         }
 
-        // Construir los claims y generar el token
+        // 2. Construir los claims y generar el token
         Map<String, Object> map = construirClaims(cuenta);
         return new TokenDTO(jwtUtils.generarToken(cuenta.getEmail(), map));
     }

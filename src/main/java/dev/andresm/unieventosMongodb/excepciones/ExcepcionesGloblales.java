@@ -28,7 +28,7 @@ import java.util.List;
  * lanzadas por cualquier controlador REST.
  */
 @RestControllerAdvice
-public class GlobalException {
+public class ExcepcionesGloblales {
 
     /**
      * Captura cualquier excepción no controlada.
@@ -41,7 +41,7 @@ public class GlobalException {
 
         return ResponseEntity
                 .internalServerError()
-                .body( new MensajeDTO<>(true, e.getMessage()));
+                .body( new MensajeDTO<>(true, e.getMessage(), null));
     }
 
     /**
@@ -71,6 +71,6 @@ public class GlobalException {
 
         return ResponseEntity.
                 badRequest()
-                .body( new MensajeDTO<>(true, errores));
+                .body( new MensajeDTO<>(true, "Errores de validación", errores));
     }
 }
