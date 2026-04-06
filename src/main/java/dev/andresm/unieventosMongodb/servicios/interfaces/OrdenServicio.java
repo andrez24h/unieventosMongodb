@@ -1,45 +1,25 @@
 package dev.andresm.unieventosMongodb.servicios.interfaces;
 
-import com.mercadopago.resources.preference.Preference;
 import dev.andresm.unieventosMongodb.documentos.Orden;
 import dev.andresm.unieventosMongodb.dto.orden.CrearOrdenDTO;
 import dev.andresm.unieventosMongodb.dto.orden.ItemOrdenDTO;
 import dev.andresm.unieventosMongodb.dto.orden.OrdenDetalleDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * - Servicio de gestión de órdenes en UniEventos.
- * Define las operaciones relacionadas con la creación, consulta
- * y pago de órdenes de compra de entradas para eventos.
+ * Servicio de gestión de órdenes en UniEventos.
 
- * Incluye métodos para:
- * - Crear una orden
- * - Obtener una orden específica
- * - Realizar pagos mediante MercadoPago
- * - Recibir notificaciones de la pasarela de pago
- * - Listar órdenes por evento o por usuario
+ * Responsabilidades:
+ * - Crear órdenes de compra
+ * - Consultar órdenes
+ * - Listar órdenes por usuario o evento
+
+ * IMPORTANTE:
+ * Este servicio NO maneja pagos.
+ * La integración con MercadoPago se delega a PagoServicio.
  */
 public interface OrdenServicio {
-
-    /**
-     * - Realizar el pago de una orden específica.
-
-     * @param idOrden identificador de la orden a pagar
-     * @return Objeto Preference de MercadoPago con los datos de la transacción
-     * @throws Exception si ocurre un error en la integración con la pasarela de pago
-     */
-    Preference realizarPago(String idOrden) throws Exception;
-
-    /**
-     * - Procesar notificaciones recibidas desde MercadoPago.
-     * Permite actualizar el estado de la orden según los eventos enviados
-     * por la pasarela de pagos (ej. pago aprobado, rechazado, pendiente).
-
-     * @param request mapa con los datos de la notificación enviada por MercadoPago
-     */
-    void recibirNotificacionMercadoPago(Map<String, Object> request);
 
     /**
      * - Crear una nueva orden de compra.

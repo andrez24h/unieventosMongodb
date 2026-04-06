@@ -38,6 +38,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:9.2.0'
     implementation 'org.springframework.security:spring-security-crypto:6.3.3'
     implementation 'com.mercadopago:sdk-java:2.1.27'
+    implementation 'com.itextpdf:itext7-core:7.2.5'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.google.zxing:javase:3.5.3'

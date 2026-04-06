@@ -1,10 +1,9 @@
 package dev.andresm.unieventosMongodb.controladores;
 
-import dev.andresm.unieventosMongodb.carrito.CarritoDTO;
+import dev.andresm.unieventosMongodb.dto.carrito.CarritoDTO;
 import dev.andresm.unieventosMongodb.dto.conex.MensajeDTO;
 import dev.andresm.unieventosMongodb.dto.cuenta.*;
 import dev.andresm.unieventosMongodb.dto.cupon.RedimirCuponDTO;
-import dev.andresm.unieventosMongodb.dto.evento.EditarEventoDTO;
 import dev.andresm.unieventosMongodb.servicios.interfaces.CuentaServicio;
 import dev.andresm.unieventosMongodb.servicios.interfaces.CuponServicio;
 import jakarta.validation.Valid;

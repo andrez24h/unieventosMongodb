@@ -1,14 +1,5 @@
 package dev.andresm.unieventosMongodb.servicios.implement;
 
-import com.mercadopago.MercadoPagoConfig;
-import com.mercadopago.client.payment.PaymentClient;
-import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
-import com.mercadopago.client.preference.PreferenceClient;
-import com.mercadopago.client.preference.PreferenceItemRequest;
-import com.mercadopago.client.preference.PreferenceRequest;
-import com.mercadopago.resources.payment.Payment;
-import com.mercadopago.resources.preference.Preference;
-import com.thoughtworks.qdox.model.expression.Or;
 import dev.andresm.unieventosMongodb.documentos.*;
 import dev.andresm.unieventosMongodb.dto.cupon.CrearCuponDTO;
 import dev.andresm.unieventosMongodb.dto.cupon.RedimirCuponDTO;
@@ -29,25 +20,28 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * Implementación del servicio de órdenes.
 
  * Responsabilidades:
- * - Crear órdenes a partir del carrito
- * - Generar preferencia de pago en MercadoPago
- * - Procesar notificaciones (webhook)
- * - Consultar órdenes por evento o usuario
+ * - Crear órdenes a partir del carrito de compras
+ * - Validar disponibilidad de eventos y localidades
+ * - Aplicar cupones de descuento
+ * - Consultar órdenes por usuario o evento
+ * - Generar información detallada de la orden (incluyendo QR)
+
+ * IMPORTANTE:
+ * Este servicio NO gestiona pagos.
+ * La integración con pasarelas de pago se delega a PagoServicio.
 
  * NOTA:
  * El precio se congela en el DetalleOrden al momento de crear la orden.
- * No se recalcula al generar el pago.
+ * No se recalcula posteriormente.
  */
 @Service
 @Transactional
@@ -61,257 +55,6 @@ public class OrdenServicioImp implements OrdenServicio {
     private final OrdenRepo ordenRepo;
     private final EmailServicio emailServicio;
     private final QRServicio qrServicio;
-
-    // =========================================================
-    // MÉTODO: REALIZAR PAGO
-    // =========================================================
-
-    /**
-     * Genera una preferencia de pago en MercadoPago
-     * para una orden previamente creada en el sistema.
-     * <p>
-     * Flujo del proceso:
-     * 1. Se obtiene la orden desde la base de datos.
-     * 2. Se construyen los ítems que se enviarán a la pasarela.
-     * 3. Se configuran credenciales y URLs de retorno.
-     * 4. Se crea la preferencia en MercadoPago.
-     * 5. Se guarda el código de la pasarela en la orden.
-     * <p>
-     * IMPORTANTE:
-     * El precio ya fue validado y almacenado en el DetalleOrden
-     * al momento de crear la orden (precio congelado).
-     * No se recalcula el precio al generar el pago.
-     */
-    @Override
-    public Preference realizarPago(String idOrden) throws Exception {
-
-        // 1.  Obtener la orden guardada en la base de datos y los ítems de la orden
-        Orden ordenGuardada = obtenerOrden(idOrden);
-
-        // 2. Lista que contendrá los ítems que se enviarán a MercadoPago
-        List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
-
-        // 3. Recorrer los items de la orden y crea los ítems de la pasarela
-        for (DetalleOrden item : ordenGuardada.getItems()) {
-
-            /*
-             * IMPORTANTE:
-             * No volvemos a consultar el evento ni la localidad.
-             * El precio ya fue validado y guardado cuando se creó la orden.
-             * Esto evita inconsistencias si el precio cambia después.
-             */
-            PreferenceItemRequest itemRequest =
-                    PreferenceItemRequest.builder()
-                            .id(item.getIdEvento())             // Identificador del evento
-                            .title(item.getNombreLocalidad())   // Nombre de la localidad
-                            .quantity(item.getCantidad())       // Cantidad de entradas
-                            .currencyId("COP")                  // Moneda
-                            .unitPrice(BigDecimal.valueOf(item.getPrecioUnitario()))
-                            .build();
-
-            itemsPasarela.add(itemRequest);
-        }
-
-        // 4. Configurar credenciales de MercadoPago
-        MercadoPagoConfig.setAccessToken("ACCESS_TOKEN");
-
-        // 5. Configurar URLs de retorno (Frontend)
-        PreferenceBackUrlsRequest backUrls =
-                PreferenceBackUrlsRequest.builder()
-                        .success("URL PAGO EXITOSO")
-                        .failure("URL_PAGO_FALLIDO")
-                        .pending("URL_PAGO_PENDIENTE")
-                        .build();
-
-        /*
-         * 6️. Construir la preferencia:
-         * - Ítems
-         * - Metadatos (para recuperar la orden en el webhook)
-         * - URLs de retorno
-         * - URL de notificación (Webhook con ngrok)
-         */
-
-        PreferenceRequest preferenceRequest =
-                PreferenceRequest.builder()
-                        .items(itemsPasarela)
-                        .backUrls(backUrls)
-                        .metadata(Map.of("id_orden", ordenGuardada.getId()))
-                        .notificationUrl("URL NOTIFICACION")
-                        .build();
-
-        // 7️. Crear la preferencia en MercadoPago
-        PreferenceClient client = new PreferenceClient();
-        Preference preference = client.create(preferenceRequest);
-
-        // 8. Guardar el código de la pasarela en la orden
-        ordenGuardada.setCodigoPasarela(preference.getId());
-        ordenRepo.save(ordenGuardada);
-
-        // 9. Retornar la preferencia generada
-        return preference;
-    }
-
-    // =========================================================
-    // MÉTODO: RECIBIR NOTIFICACIONES (WEBHOOK)
-    // =========================================================
-
-    /**
-     * Procesa las notificaciones enviadas por MercadoPago
-     * a través del Webhook configurado en notificationUrl.
-
-     * Solo se procesan notificaciones de tipo "payment".
-
-     * Flujo del proceso:
-     * 1. Verificar el tipo de notificación recibida.
-     * 2. Obtener el identificador del pago enviado por MercadoPago.
-     * 3. Consultar el pago en la pasarela utilizando el id recibido.
-     * 4. Recuperar el id de la orden almacenado en los metadatos del pago.
-     * 5. Buscar la orden correspondiente en la base de datos.
-     * 6. Construir el objeto Pago del sistema a partir de la respuesta de la pasarela.
-     * 7. Asociar el pago a la orden.
-     * 8. Si el pago fue aprobado:
-     *      - Actualizar el estado de la orden a PAGADA.
-     *      - Actualizar el inventario de entradas del evento.
-     *      - Enviar el correo de confirmación de compra al cliente.
-     * 9. Si el pago fue rechazado:
-     *      - Marcar la orden como FALLIDA.
-     * 10. Guardar la orden actualizada en la base de datos.
-     */
-    @Override
-    public void recibirNotificacionMercadoPago(Map<String, Object> request) {
-
-        try {
-
-            // 1. Obtener el tipo de notificación
-            Object tipo = request.get("type");
-
-            // 2. Si la notificación es de un pago entonces obtener el pago y la orden asociada
-            if ("payment".equals(tipo)) {
-
-                // 3. Capturamos el JSON que viene en el request y lo convertimos a un String
-                String input = request.get("data").toString();
-
-                // 4. Extraemos los números de la cadena, es decir, el id del pago
-                String idPago = input.replaceAll("\\D+", "");
-
-                // 5️. Consultar el pago en MercadoPago utilizando su API
-                PaymentClient client = new PaymentClient();
-                Payment payment = client.get(Long.parseLong(idPago));
-
-                // 6️. Obtener el id de la orden almacenado en los metadatos del pago
-                String idOeden = payment.getMetadata().get("id_orden").toString();
-
-                // 7️. Buscar la orden en la base de datos
-                Orden orden = obtenerOrden(idOeden);
-
-                // 8️. Crear el objeto Pago del sistema a partir de la respuesta de MercadoPago
-                Pago pago = crearPago(payment);
-
-                // 9️⃣ Asociar el pago a la orden
-                orden.setPago(pago);
-
-                // =========================================================
-                // PROCESAR RESULTADO DEL PAGO
-                // =========================================================
-
-                // 10️. Si el pago fue aprobado
-                if ("approved".equals(payment.getStatus())) {
-
-                    // Marcar la orden como pagada
-                    orden.setEstado(EstadoOrden.PAGADA);
-
-                    // - Enviar correo de confirmación de compra
-                    // Se construye el objeto EmailDTO con la información de la orden
-                    EmailDTO email = new EmailDTO(
-                            "cliente@email.com",
-                            "Factura de compra - UniEventos",
-                            "Su compra fue realizada con éxito.\n\nOrden: " + orden.getId()
-                    );
-
-                    // Se utiliza el servicio de correo del sistema
-                    emailServicio.enviarEmail(email);
-
-                    // =====================================================
-                    // ACTUALIZAR INVENTARIO DE ENTRADAS
-                    // =====================================================
-
-                    for (DetalleOrden detalle : orden.getItems()) {
-
-                        // 10.1 Buscar el evento asociado al ítem
-                        Optional<Evento> optionalEvento = eventoRepo.buscarId(detalle.getIdEvento());
-
-                        if (optionalEvento.isEmpty()) {
-                            throw new RuntimeException("Evento no encontrado");
-                        }
-
-                        Evento evento = optionalEvento.get();
-
-                        // 10.2 Buscar la localidad dentro del evento
-                        Optional<Localidad> optionalLocalidad = evento.getLocalidades()
-                                .stream()
-                                .filter(localidad -> localidad.getNombre().equals(detalle.getNombreLocalidad()))
-                                .findFirst();
-
-                        if (optionalLocalidad.isEmpty()) {
-                            throw new RuntimeException("Localidad no encontrada");
-                        }
-
-                        Localidad localidad = optionalLocalidad.get();
-
-                        // 10.3 Aumentar el número de entradas vendidas
-                        localidad.setEntradasVendidas(
-                                localidad.getEntradasVendidas() + detalle.getCantidad()
-                        );
-
-                        // 10.4 Recalcular el porcentaje de venta de la localidad
-                        double porcentaje =
-                                (double) localidad.getEntradasVendidas() / localidad.getCapacidadMaxima() * 100;
-                        localidad.setPorcentajeVenta(porcentaje);
-
-                        // 10.5 Guardar el evento actualizado
-                        eventoRepo.save(evento);
-                    }
-
-                    // 11️. Si el pago fue rechazado
-                } else if ("rejected".equals(payment.getStatus())) {
-
-                    // Marcar la orden como fallida
-                    orden.setEstado(EstadoOrden.FALLIDA);
-                }
-
-                // 12️. Guardar la orden actualizada en la base de datos
-                ordenRepo.save(orden);
-            }
-        } catch (Exception e) {
-
-            // Manejo básico de errores para evitar que el webhook falle
-            e.printStackTrace();
-        }
-    }
-
-    /* =====================   MÉTODOS AUXILIAR   ========================================= */
-
-    /**
-     * Convierte un objeto Payment de MercadoPago
-     * en un objeto Pago utilizado por el sistema.
-     */
-    private Pago crearPago(Payment payment) {
-
-        // Convertir el objeto Payment de MercadoPago
-        // en un objeto Pago del sistema
-        Pago pago = new Pago();
-
-        pago.setCodigo(payment.getId().toString());                             // Id del pago en MercadoPago
-        pago.setCodigoAutorizacion(payment.getAuthorizationCode());             // Código de autorización bancaria
-        pago.setDetalleEstado(payment.getStatusDetail());                       // Detalle técnico del estado
-        pago.setEstado(payment.getStatus());                                    // Estado general (approved, rejected, pending)
-        pago.setFecha(payment.getDateCreated().toLocalDateTime());              // Fecha de creación del pago
-        pago.setMoneda(payment.getCurrencyId());                                // Moneda
-        pago.setTipoPago(payment.getPaymentTypeId());                           // Tipo de pago (credit_card, debit_card, etc.)
-        pago.setValorTransaccion(payment.getTransactionAmount().floatValue());  // Valor pagado
-
-        return pago;
-    }
 
     @Override
     public String crearOrden(CrearOrdenDTO crearOrdenDTO) throws Exception {
@@ -447,36 +190,7 @@ public class OrdenServicioImp implements OrdenServicio {
         // 7. Guardar la orden en la base de datos
         ordenRepo.save(orden);
 
-        // 8. Generar contenido del QR para la orden
-        String contenidoQR = "ORDEN:" + orden.getId();
-
-        // 9. Generar el QR en Base64
-        String qrBase64 = qrServicio.generarQR(contenidoQR);
-
-        // 10. Construir el contenido del correo (sin HTML)
-        String mensajeEmail =
-                "Compra confirmada\n\n" +
-                        "Orden: " + orden.getId() + "\n" +
-                        "Fecha: " + orden.getFecha() + "\n" +
-                        "Total: " + orden.getTotal() + "\n\n" +
-                        "Este es el código QR de su entrada:\n" +
-                        qrBase64;
-
-        // 11. Crear el DTO del correo
-        EmailDTO emailDTO = new EmailDTO(
-                cuenta.getEmail(),
-                "Confirmación de compra - UniEventos",
-                mensajeEmail
-        );
-
-        // 12. Enviar el correo
-        emailServicio.enviarEmail(emailDTO);
-
-        // 13. Vaciar carrito
-        cuenta.getCarrito().getItems().clear();
-        cuentaRepo.save(cuenta);
-
-        // 14. Retornar ID
+        // 8. Retornar ID
         return orden.getId();
     }
 

@@ -1,4 +1,4 @@
-package dev.andresm.unieventosMongodb.carrito;
+package dev.andresm.unieventosMongodb.dto.carrito;
 
 import lombok.Builder;
 

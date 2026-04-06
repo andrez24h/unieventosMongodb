@@ -1,7 +1,6 @@
 package dev.andresm.unieventosMongodb.servicios.interfaces;
 
-import dev.andresm.unieventosMongodb.carrito.CarritoDTO;
-import dev.andresm.unieventosMongodb.documentos.Carrito;
+import dev.andresm.unieventosMongodb.dto.carrito.CarritoDTO;
 import dev.andresm.unieventosMongodb.dto.cuenta.TokenDTO;
 import dev.andresm.unieventosMongodb.dto.cuenta.*;
 import dev.andresm.unieventosMongodb.documentos.Cuenta;

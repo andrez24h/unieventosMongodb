@@ -100,6 +100,19 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
                     "} }"
     })
     List<ItemOrdenDTO> listarOrdenesPorEvento(String idEvento);
+
+    /**
+     * Obtiene todas las órdenes que contienen un evento específico.
+
+     * Este método retorna las órdenes completas (no DTO),
+     * permitiendo acceder a los ítems, cantidades y precios
+     * para cálculos internos como reportes.
+     *
+     * @param idEvento identificador del evento
+     * @return Lista de órdenes completas
+     */
+    @Query("{ 'items.idEvento': ?0 }")
+    List<Orden> buscarOrdenesPorEvento(String idEvento);
 }
 /*
 ================================================================================
