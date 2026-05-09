@@ -34,8 +34,9 @@ public class Cuenta implements Serializable {
     private Usuario usuario;
 
     @Builder(toBuilder = true)
-    public Cuenta(String id, Carrito carrito, CodigoValidacion codigoValidacionPassword, CodigoValidacion codigoValidacionRegistro,
-                  String email, EstadoCuenta estado, LocalDateTime fechaRegistro, String password, Rol rol, Usuario usuario) {
+    public Cuenta(String id, Carrito carrito, CodigoValidacion codigoValidacionPassword,
+                  CodigoValidacion codigoValidacionRegistro, String email, EstadoCuenta estado,
+                  LocalDateTime fechaRegistro, String password, Rol rol, Usuario usuario) {
         this.id = id;
         this.carrito = carrito;
         this.codigoValidacionPassword = codigoValidacionPassword;

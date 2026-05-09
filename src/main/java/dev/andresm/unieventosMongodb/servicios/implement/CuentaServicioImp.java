@@ -216,7 +216,6 @@ public class CuentaServicioImp implements CuentaServicio {
         return true;
     }
 
-
     /**
      * Obtiene una lista básica de todas las cuentas registradas.
      * Retorna información resumida sin datos sensibles.
@@ -352,6 +351,7 @@ public class CuentaServicioImp implements CuentaServicio {
      */
     @Override
     public String eliminarCuenta(String id) throws Exception {
+
         try {
             // Cuenta cuenta = obtenerCuentaPorId(id);
             // Paso 1: Buscar la cuenta en el repositorio usando su ID.
@@ -404,15 +404,16 @@ public class CuentaServicioImp implements CuentaServicio {
      */
     @Override
     public Cuenta obtenerCuenta(String id) throws Exception {
-        // Buscar la cuenta en el repositorio por ID
+
+        // 1. Buscar la cuenta en el repositorio
         Optional<Cuenta> cuentaOptional = cuentaRepo.buscarId(id);
 
-        // Si no se encuentra, lanzar una excepción
+        // 2. Validar existencia
         if (cuentaOptional.isEmpty()) {
             throw new Exception("La cuenta con el ID: " + id + " no existe.");
         }
 
-        // Retornar la cuenta si existe
+        // 3. Retornar la cuenta
         return cuentaOptional.get();
     }
 
@@ -452,7 +453,7 @@ public class CuentaServicioImp implements CuentaServicio {
 
     /**
      * 🔹 Retorna la información básica de una cuenta.
-     * Se usa para mostrar datos del perfil del usuario.
+     * Se usa para mostrar datos del perfil del ulsuario.
      *
      * @param id Identificador de la cuenta.
      * @return Información de la cuenta.
@@ -481,7 +482,7 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     /**
-     * 🔹 Envía un código de recuperación de contraseña al correo del usuario.
+     * - Envía un código de recuperación de contraseña al correo del usuario.
      * El código tiene una vigencia limitada.
      *
      * @param codigoPasswordDTO Contiene el correo del usuario.
@@ -524,43 +525,73 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     /**
-     * 🔹 Cambia la contraseña de una cuenta usando un código de recuperación.
-     * Valida el código y su tiempo de expiración.
+     * - Cambia la contraseña de una cuenta usando un código de recuperación.
+
+     * Este método realiza el proceso completo de validación y actualización:
+     * 1. Verifica que el correo exista en la base de datos.
+     * 2. Valida que la cuenta esté activa y no eliminada.
+     * 3. Comprueba que exista un código de recuperación asociado.
+     * 4. Valida que el código ingresado coincida con el almacenado.
+     * 5. Verifica que el código no haya expirado (máximo 15 minutos).
+     * 6. Encripta la nueva contraseña.
+     * 7. Actualiza la contraseña en la cuenta.
+     * 8. Elimina el código de recuperación (uso único).
+     * 9. Guarda los cambios en la base de datos.
      *
-     * @param cambiarPasswordDTO Contiene email, código y nueva contraseña.
+     * @param cambiarPasswordDTO Contiene email, código de verificación y nueva contraseña.
      * @return Mensaje de confirmación.
-     * @throws Exception Si el código es inválido, expiró o la cuenta no es válida.
+     * @throws Exception Si el correo no existe, la cuenta es inválida,
+     *                   el código es incorrecto o ha expirado.
      */
     @Override
     public String cambiarPassword(CambiarPasswordDTO cambiarPasswordDTO) throws Exception {
+
+        // 1. Buscar la cuenta por email
         Optional<Cuenta> cuentaOptional = cuentaRepo.buscarEmail(cambiarPasswordDTO.email());
 
+        // 2. Validar que exista
         if (cuentaOptional.isEmpty()) {
             throw new Exception("El correo dado no está registrado");
         }
+        // 3. Obtener la cuenta
         Cuenta cuenta = cuentaOptional.get();
 
+        // 4. Validar estado de la cuenta
         if (cuenta.getEstado().equals(EstadoCuenta.INACTIVO)) {
             throw new Exception("La cuenta no se encuentra activa");
         }
         if (cuenta.getEstado().equals(EstadoCuenta.ELIMINADO)) {
             throw new Exception("La cuenta ha sido eliminada");
         }
+        // 5. Obtener código de recuperación
         CodigoValidacion codigoValidacion = cuenta.getCodigoValidacionPassword();
 
+        // 6. Validar que exista código activo
         if (codigoValidacion == null) {
             throw new Exception("No hay un código de recuperación activo");
         }
+        // 7. Validar que el código coincida
         if (codigoValidacion.getCodigo().equals(cambiarPasswordDTO.codigoVerificacion())) {
+
+            // 8. Obtener fecha de creación del código
             LocalDateTime fechaCreacion = codigoValidacion.getFechaCreacion();
 
+            // 9. Validar expiración (15 minutos)
             if (Duration.between(fechaCreacion, LocalDateTime.now()).toMinutes() <= 15) {
+
+                // 10. Encriptar nueva contraseña
                 String passwordEncriptada = encriptarPassword(cambiarPasswordDTO.passwordNuevo());
+
+                // 11. Actualizar contraseña
                 cuenta.setPassword(passwordEncriptada);
 
+                // 12. Eliminar código de recuperación (uso único)
                 cuenta.setCodigoValidacionPassword(null);
+
+                // 13. Guardar cambios
                 cuentaRepo.save(cuenta);
 
+                // 14. Retornar confirmación
                 return "Contraseña cambiada correctamente";
             } else {
                 throw new Exception("El código de validación ya expiró");
@@ -571,27 +602,46 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     /**
-     * Inicia sesión de un usuario.
-     * Valida las credenciales y genera un token JWT
-     * con la información básica del usuario.
+     *  Inicia sesión de un usuario en el sistema.
+
+     * Este método se encarga de:
+     * 1. Buscar la cuenta por email utilizando Optional.
+     * 2. Validar que la cuenta exista.
+     * 3. Verificar que la contraseña coincida (encriptada).
+     * 4. Construir los claims del usuario.
+     * 5. Generar y retornar un token JWT.
      *
-     * @param loginDTO email y contraseña
-     * @return token JWT
-     * @throws Exception si las credenciales son inválidas
+     * @param loginDTO contiene email y contraseña del usuario
+     * @return TokenDTO con el token JWT generado
+     * @throws Exception si el usuario no existe o la contraseña es incorrecta
      */
     @Override
     public TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception {
 
-        // 1. Obtener y validar la cuenta
-        Cuenta cuenta = obtenerEmail(loginDTO.email());
+        // 1. Buscar la cuenta por email (uso de Optional como te gusta 👍)
+        Optional<Cuenta> cuentaOptional = cuentaRepo.buscarEmail(loginDTO.email());
 
+        // 2. Validar si la cuenta existe
+        if (cuentaOptional.isEmpty()) {
+            throw new Exception("El usuario no existe");
+        }
+
+        // 3. Obtener la cuenta
+        Cuenta cuenta = cuentaOptional.get();
+
+        // 4. Validar contraseña encriptada
         if (!passwordEncoder.matches(loginDTO.password(), cuenta.getPassword())) {
             throw new Exception("La contraseña es incorrecta");
         }
 
-        // 2. Construir los claims y generar el token
-        Map<String, Object> map = construirClaims(cuenta);
-        return new TokenDTO(jwtUtils.generarToken(cuenta.getEmail(), map));
+        // 5. Construir los claims (datos que irán en el token)
+        Map<String, Object> claims = construirClaims(cuenta);
+
+        // 6. Generar token JWT
+        String token = jwtUtils.generarToken(cuenta.getEmail(), claims);
+
+        // 7. Retornar token
+        return new TokenDTO(token);
     }
 
     private Map<String, Object> construirClaims(Cuenta cuenta) {
@@ -1040,4 +1090,21 @@ public class CuentaServicioImp implements CuentaServicio {
  * }
 
  * Localidad localidadAnterior = localidadAnteriorOptional.get();
+ */
+
+/**
+ *  @Override
+ *     public TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception {
+ *
+ *         // 1. Obtener y validar la cuenta
+ *         Cuenta cuenta = obtenerEmail(loginDTO.email());
+ *
+ *         if (!passwordEncoder.matches(loginDTO.password(), cuenta.getPassword())) {
+ *             throw new Exception("La contraseña es incorrecta");
+ *         }
+ *
+ *         // 2. Construir los claims y generar el token
+ *         Map<String, Object> map = construirClaims(cuenta);
+ *         return new TokenDTO(jwtUtils.generarToken(cuenta.getEmail(), map));
+ *     }
  */

@@ -6,10 +6,12 @@ import dev.andresm.unieventosMongodb.documentos.TipoEvento;
 import dev.andresm.unieventosMongodb.documentos.Ubicacion;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 public record CrearEventoDTO(
         @NotBlank String idUsuario,
         @NotBlank String nombre,

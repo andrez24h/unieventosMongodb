@@ -6,8 +6,10 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 
 public class Ubicacion {
+
     private double latitud;
     private double longitud;
 }

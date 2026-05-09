@@ -9,5 +9,4 @@ public record FiltrarPorFechaYTipoYCiudadDTO(
         LocalDate fecha,
         TipoEvento tipo,
         String ciudad
-) {
-}
+) {}

@@ -5,5 +5,4 @@ import dev.andresm.unieventosMongodb.documentos.TipoEvento;
 public record FiltrarPorTipoYCiudadDTO(
         TipoEvento tipo,
         String ciudad
-) {
-}
+) {}

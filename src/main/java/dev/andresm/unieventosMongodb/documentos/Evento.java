@@ -21,6 +21,7 @@ public class Evento implements Serializable {
     @Id
     @EqualsAndHashCode.Include
     private String id;
+
     private String idUsuario;
     private String nombre;
     private String descripcion;
@@ -36,7 +37,9 @@ public class Evento implements Serializable {
 
 
     @Builder
-    public Evento(String idUsuario, String nombre, String descripcion, Ubicacion ubicacion, String direccion, String ciudad, String imagenPortada, String imagenLocalidades, EstadoEvento estado, TipoEvento tipo, LocalDateTime fecha, List<Localidad> localidades) {
+    public Evento(String idUsuario, String nombre, String descripcion, Ubicacion ubicacion,
+                  String direccion, String ciudad, String imagenPortada, String imagenLocalidades,
+                  EstadoEvento estado, TipoEvento tipo, LocalDateTime fecha, List<Localidad> localidades) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.descripcion = descripcion;

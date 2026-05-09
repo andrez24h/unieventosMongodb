@@ -391,4 +391,285 @@ public class OrdenServicioImp implements OrdenServicio {
  * Localidad localidad = optionalLocalidad.get();
  */
 
+// =========================================================
+// MÉTODO: REALIZAR PAGO
+// =========================================================
 
+/**
+ * Genera una preferencia de pago en MercadoPago
+ * para una orden previamente creada en el sistema.
+ * <p>
+ * Flujo del proceso:
+ * 1. Se obtiene la orden desde la base de datos.
+ * 2. Se construyen los ítems que se enviarán a la pasarela.
+ * 3. Se configuran credenciales y URLs de retorno.
+ * 4. Se crea la preferencia en MercadoPago.
+ * 5. Se guarda el código de la pasarela en la orden.
+ * <p>
+ * IMPORTANTE:
+ * El precio ya fue validado y almacenado en el DetalleOrden
+ * al momento de crear la orden (precio congelado).
+ * No se recalcula el precio al generar el pago.
+
+@Override
+public Preference realizarPago(String idOrden) throws Exception {
+
+    // 1.  Obtener la orden guardada en la base de datos y los ítems de la orden
+    Orden ordenGuardada = obtenerOrden(idOrden);
+
+    // 2. Lista que contendrá los ítems que se enviarán a MercadoPago
+    List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
+
+    // 3. Recorrer los items de la orden y crea los ítems de la pasarela
+    for (DetalleOrden item : ordenGuardada.getItems()) {
+
+        /*
+         * IMPORTANTE:
+         * No volvemos a consultar el evento ni la localidad.
+         * El precio ya fue validado y guardado cuando se creó la orden.
+         * Esto evita inconsistencias si el precio cambia después.
+
+        PreferenceItemRequest itemRequest =
+                PreferenceItemRequest.builder()
+                        .id(item.getIdEvento())             // Identificador del evento
+                        .title(item.getNombreLocalidad())   // Nombre de la localidad
+                        .quantity(item.getCantidad())       // Cantidad de entradas
+                        .currencyId("COP")                  // Moneda
+                        .unitPrice(BigDecimal.valueOf(item.getPrecioUnitario()))
+                        .build();
+
+        itemsPasarela.add(itemRequest);
+    }
+
+    // 4. Configurar credenciales de MercadoPago
+    MercadoPagoConfig.setAccessToken("ACCESS_TOKEN");
+
+    // 5. Configurar URLs de retorno (Frontend)
+    PreferenceBackUrlsRequest backUrls =
+            PreferenceBackUrlsRequest.builder()
+                    .success("URL PAGO EXITOSO")
+                    .failure("URL_PAGO_FALLIDO")
+                    .pending("URL_PAGO_PENDIENTE")
+                    .build();
+
+    /*
+     * 6️. Construir la preferencia:
+     * - Ítems
+     * - Metadatos (para recuperar la orden en el webhook)
+     * - URLs de retorno
+     * - URL de notificación (Webhook con ngrok)
+
+
+    PreferenceRequest preferenceRequest =
+            PreferenceRequest.builder()
+                    .items(itemsPasarela)
+                    .backUrls(backUrls)
+                    .metadata(Map.of("id_orden", ordenGuardada.getId()))
+                    .notificationUrl("URL NOTIFICACION")
+                    .build();
+
+    // 7️. Crear la preferencia en MercadoPago
+    PreferenceClient client = new PreferenceClient();
+    Preference preference = client.create(preferenceRequest);
+
+    // 8. Guardar el código de la pasarela en la orden
+    ordenGuardada.setCodigoPasarela(preference.getId());
+    ordenRepo.save(ordenGuardada);
+
+    // 9. Retornar la preferencia generada
+    return preference;
+}
+
+
+
+
+// =========================================================
+// MÉTODO: RECIBIR NOTIFICACIONES (WEBHOOK)
+// =========================================================
+
+/**
+ * Procesa las notificaciones enviadas por MercadoPago
+ * a través del Webhook configurado en notificationUrl.
+
+ * Solo se procesan notificaciones de tipo "payment".
+
+ * Flujo del proceso:
+ * 1. Obtener el tipo de notificación recibida.
+ * 2. Validar que sea una notificación de tipo "payment".
+ * 3. Obtener el objeto "data" enviado en el request.
+ * 4. Validar que "data" tenga la estructura esperada (Map).
+ * 5. Realizar el cast controlado del objeto data.
+ * 6. Validar que el id del pago esté presente en la notificación.
+ * 7. Obtener el id del pago enviado por MercadoPago.
+ * 8. Consultar el pago en la API de MercadoPago.
+ * 9. Obtener los metadatos del pago.
+ * 10. Validar que exista el id de la orden en los metadatos.
+ * 11. Obtener el id de la orden asociada al pago.
+ * 12. Buscar la orden en la base de datos.
+ * 13. Verificar que la orden no haya sido procesada previamente.
+ * 14. Crear el objeto Pago del sistema a partir del Payment.
+ * 15. Asociar el pago a la orden.
+ * 16. Evaluar el estado del pago.
+ * 17. Si el pago es aprobado, marcar la orden como PAGADA.
+ * 18. Obtener la cuenta del cliente.
+ * 19. Construir el mensaje de confirmación.
+ * 20. Crear el DTO del email.
+ * 21. Enviar el correo de confirmación al cliente.
+ * 22. Recorrer los ítems de la orden.
+ * 23. Buscar el evento asociado.
+ * 24. Buscar la localidad del evento.
+ * 25. Actualizar la cantidad de entradas vendidas.
+ * 26. Recalcular el porcentaje de ocupación.
+ * 27. Guardar los cambios del evento.
+ * 28. Si el pago es rechazado, marcar la orden como FALLIDA.
+ * 29. Guardar la orden actualizada.
+ * 30. Manejar posibles errores para evitar fallos en el webhook.
+
+@Override
+public void recibirNotificacionMercadoPago(Map<String, Object> request) {
+
+    try {
+
+        // 1. Obtener el tipo de notificación enviada por MercadoPago
+        Object tipo = request.get("type");
+
+        // 2. Validar que sea una notificación de pago
+        if ("payment".equals(tipo)) {
+
+            // 3. Obtener el objeto "data" del request
+            Object dataObj = request.get("data");
+
+            // 4 Validar que data tenga la estructura esperada (Map)
+            if (!(dataObj instanceof Map)) {
+                throw new RuntimeException("Formato inválido en data");
+            }
+            // 5. Cast controlado (evita warning con SuppressWarnings)
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) dataObj;
+
+            // 6. Validar que el id del pago venga en la notificación
+            if (data.get("id") == null ) {
+                throw new RuntimeException("No viene id en data");
+            }
+
+            // 7. Obtener el id del pago enviado por MercadoPago
+            String idPago = data.get("id").toString();
+
+            // 8. Consultar el pago en MercadoPago usando su SDK
+            PaymentClient client = new PaymentClient();
+            Payment payment = client.get(Long.parseLong(idPago));
+
+            // 9. Obtener metadata del pago
+            Map<String, Object> metadata = payment.getMetadata();
+
+            // 10 Validar que exista el id de la orden dentro del metadata
+            if (metadata == null || metadata.get("id_orden") == null) {
+                throw new RuntimeException("El pago no tiene id_orden en metadata");
+            }
+
+            // 11. Obtener el id de la orden asociado al pago
+            String idOrden = metadata.get("id_orden").toString();
+
+            // 12. Buscar la orden en la base de datos
+            Orden orden = obtenerOrden(idOrden);
+
+            // 13 Evitar reprocesar una orden ya pagada (webhook puede repetirse)
+            if (orden.getEstado() == EstadoOrden.PAGADA) {
+                return;
+            }
+
+            // 14. Crear el objeto Pago del sistema a partir del Payment
+            Pago pago = crearPago(payment);
+
+            // 15️. Asociar el pago a la orden
+            orden.setPago(pago);
+
+            // =========================================================
+            // PROCESAR RESULTADO DEL PAGO
+            // =========================================================
+
+            // 16. Si el pago fue aprobado
+            if ("approved".equals(payment.getStatus())) {
+
+                // 17. Marcar la orden como pagada
+                orden.setEstado(EstadoOrden.PAGADA);
+
+                // 18. Obtener la cuenta del cliente
+                Cuenta cuenta = cuentaRepo.buscarId(orden.getIdCliente())
+                        .orElseThrow(() -> new RuntimeException("No existe el cuenta"));
+
+                // 19. Construir el mensaje de confirmación
+                String mensajeEmail =
+                        "Compra confirmada\n\n" +
+                                "Orden: " + orden.getId() + "\n" +
+                                "Fecha: " + orden.getFecha() + "\n" +
+                                "Total: " + orden.getTotal() + "\n\n" +
+                                "Puedes consultar tus entradas en la plataforma.";
+
+                // 20. Crear DTO del email
+                EmailDTO emailDTO = new EmailDTO(
+                        cuenta.getEmail(),
+                        "Confirmación de compra - UniEventos",
+                        mensajeEmail
+                );
+
+                // 21. Enviar correo al cliente
+                emailServicio.enviarEmail(emailDTO);
+
+                // =====================================================
+                // ACTUALIZAR INVENTARIO DE ENTRADAS
+                // =====================================================
+
+                for (DetalleOrden detalle : orden.getItems()) {
+
+                    // 22. Buscar el evento asociado al ítem
+                    Optional<Evento> optionalEvento = eventoRepo.buscarId(detalle.getIdEvento());
+
+                    if (optionalEvento.isEmpty()) {
+                        throw new RuntimeException("Evento no encontrado");
+                    }
+
+                    Evento evento = optionalEvento.get();
+
+                    // 23. Buscar la localidad dentro del evento
+                    Optional<Localidad> optionalLocalidad = evento.getLocalidades()
+                            .stream()
+                            .filter(localidad -> localidad.getNombre().equals(detalle.getNombreLocalidad()))
+                            .findFirst();
+
+                    if (optionalLocalidad.isEmpty()) {
+                        throw new RuntimeException("Localidad no encontrada");
+                    }
+
+                    Localidad localidad = optionalLocalidad.get();
+
+                    // 24. Aumentar el número de entradas vendidas
+                    localidad.setEntradasVendidas(
+                            localidad.getEntradasVendidas() + detalle.getCantidad()
+                    );
+
+                    // 25. Recalcular el porcentaje de venta de la localidad
+                    double porcentaje =
+                            (double) localidad.getEntradasVendidas() / localidad.getCapacidadMaxima() * 100;
+                    localidad.setPorcentajeVenta(porcentaje);
+
+                    // 26. Guardar el evento actualizado
+                    eventoRepo.save(evento);
+                }
+
+                // 27. Si el pago fue rechazado
+            } else if ("rejected".equals(payment.getStatus())) {
+
+                // 28. Marcar la orden como fallida
+                orden.setEstado(EstadoOrden.FALLIDA);
+            }
+
+            // 29. Guardar la orden actualizada en la base de datos
+            ordenRepo.save(orden);
+        }
+    } catch (Exception e) {
+
+        // 30. Manejo básico de errores para evitar que el webhook falle
+        e.printStackTrace();
+    }
+}*/

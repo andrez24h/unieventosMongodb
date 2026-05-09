@@ -8,5 +8,4 @@ public record LoginDTO (
 
         @NotBlank String email,
         @NotBlank String password
-) {
-}
+) {}

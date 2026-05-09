@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
+@Builder
 
 public class Localidad {
 

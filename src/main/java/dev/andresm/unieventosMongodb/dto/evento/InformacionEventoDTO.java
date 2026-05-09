@@ -21,5 +21,4 @@ public record InformacionEventoDTO(
         Ubicacion ubicacion,
         LocalDateTime fecha,
         List<Localidad> localidades
-) {
-}
+) {}
