@@ -434,10 +434,10 @@ public class CuentaServicioTest {
 
         // 1. Crear DTO con Builder (SIN ObjectId)
         AgregarEventoDTO dto = AgregarEventoDTO.builder()
-                .cantidad(3)
+                .cantidad(2)
                 .nombreLocalidad("VIP")
-                .idEvento("69e7fbb7c6231e5d32f9ebf9")
-                .idUsuario("69e7fbb7c6231e5d32f9ebf9")
+                .idEvento("69f192114913552c261075f4")
+                .idUsuario("69e80ac52986d11fca740685")
                 .fecha(LocalDateTime.now())
                 .build();
 
