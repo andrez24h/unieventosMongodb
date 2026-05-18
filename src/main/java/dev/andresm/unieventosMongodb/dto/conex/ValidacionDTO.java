@@ -23,5 +23,4 @@ public record ValidacionDTO(
          * Mensaje que describe el error de validación.
          */
         String mensaje
-){
-}
+){}

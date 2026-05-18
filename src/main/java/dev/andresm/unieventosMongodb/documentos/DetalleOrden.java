@@ -1,8 +1,6 @@
 package dev.andresm.unieventosMongodb.documentos;
 
 import lombok.*;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 
 @Getter
 @Setter
@@ -13,7 +11,6 @@ import org.springframework.data.annotation.Id;
 
 public class DetalleOrden {
 
-    @Id
     @EqualsAndHashCode.Include
     private String idEvento;
 

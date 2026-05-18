@@ -16,12 +16,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/cuenta")
-public class CuentaContolador {
+public class CuentaControlador {
+
     private final CuentaServicio cuentaServicio;
     private final CuponServicio cuponServicio;
 
     // ================================
-    // 👤 CUENTA
+    //  CUENTA
     // ================================
 
     // 1. Listar cuentas
@@ -53,7 +54,7 @@ public class CuentaContolador {
     }
 
     // ================================
-    // 🛒 CARRITO
+    //  CARRITO
     // ================================
 
     // 5. Agregar evento
@@ -92,7 +93,7 @@ public class CuentaContolador {
     }
 
     // ================================
-    // 🎟 CUPONES
+    //  CUPONES
     // ================================
 
     // 10. Redimir cupón

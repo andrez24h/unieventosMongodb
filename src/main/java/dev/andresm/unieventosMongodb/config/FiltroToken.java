@@ -37,7 +37,7 @@ public class FiltroToken extends OncePerRequestFilter {
 
     /**
      * Método principal del filtro que intercepta cada petición HTTP.
-     * <p>
+
      * Flujo general:
      * 1. Configura cabeceras CORS
      * 2. Permite solicitudes OPTIONS (preflight)
@@ -74,12 +74,10 @@ public class FiltroToken extends OncePerRequestFilter {
             boolean error = true;
 
             try {
-
                 // 5. Validar acceso a rutas protegidas
 
                 // ADMIN > acceso exclusivo
                 if (requestURI.startsWith("/api/admin")) {
-
                     if (token != null) {
 
                         // 6. Validar el token usando JWTUtils
@@ -193,8 +191,8 @@ public class FiltroToken extends OncePerRequestFilter {
      * @param codigoError código HTTP de error
      * @param response    respuesta HTTP
      */
-    private void crearRespuestaError(String mensaje, int codigoError, HttpServletResponse
-            response) throws IOException {
+    private void crearRespuestaError(String mensaje, int codigoError,
+                                     HttpServletResponse response) throws IOException {
         // 1. Construir el DTO de respuesta
         MensajeDTO<String> dto = new MensajeDTO<>(true, mensaje, null);
 

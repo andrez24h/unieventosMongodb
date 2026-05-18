@@ -362,19 +362,19 @@ public class OrdenServicioTest {
 
     /**
      * Test que valida el método esPrimeraCompra.
-     * <p>
+
      * CASO DE PRUEBA:
      * - Se consulta un cliente que YA tiene órdenes registradas en MongoDB.
-     * <p>
+
      * OBJETIVO:
      * - Verificar que el sistema detecta correctamente que NO es su primera compra.
-     * <p>
+
      * FLUJO:
      * 1. Se envía el id de un cliente existente.
      * 2. El servicio consulta las órdenes del cliente en la base de datos.
      * 3. Si existen órdenes, retorna false.
      * 4. Se valida el resultado esperado.
-     * <p>
+
      * RESULTADO ESPERADO:
      * - false (el usuario ya ha realizado compras)
      */

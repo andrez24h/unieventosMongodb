@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * =================================================================================
- * 📌 IMPLEMENTACIÓN DEL SERVICIO DE CUPONES
+ *  IMPLEMENTACIÓN DEL SERVICIO DE CUPONES
  * =================================================================================
 
  * - Contiene la lógica de negocio relacionada con los cupones
@@ -147,7 +147,7 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 MÉTODO AUXILIAR
+     *  MÉTODO AUXILIAR
      * =================================================================================
 
      * Genera un código único para cupones individuales.
@@ -189,7 +189,7 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 BORRAR CUPÓN (BORRADO LÓGICO)
+     *  BORRAR CUPÓN (BORRADO LÓGICO)
      * =================================================================================
 
      * - Cambia el estado a NO_DISPONIBLE
@@ -209,7 +209,7 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 REDIMIR CUPÓN
+     *  REDIMIR CUPÓN
      * =================================================================================
 
      * Permite redimir un cupón para un cliente específico.
@@ -252,7 +252,7 @@ public class CuponServicioImp implements CuponServicio {
         }
         /**
          * =================================================================================
-         * 📌 VERIFICACIÓN DE DISPONIBILIDAD DEL CUPÓN
+         *  VERIFICACIÓN DE DISPONIBILIDAD DEL CUPÓN
          * =================================================================================
 
          * Se valida que el cupón:
@@ -268,7 +268,7 @@ public class CuponServicioImp implements CuponServicio {
 
         /**
          * =================================================================================
-         * 📌 INICIALIZACIÓN DE BENEFICIARIOS
+         *  INICIALIZACIÓN DE BENEFICIARIOS
          * =================================================================================
 
          * Si la lista de beneficiarios es null,
@@ -280,7 +280,7 @@ public class CuponServicioImp implements CuponServicio {
 
         /**
          * =================================================================================
-         * 📌 REDENCIÓN SEGÚN TIPO DE CUPÓN
+         *  REDENCIÓN SEGÚN TIPO DE CUPÓN
          * =================================================================================
 
          * - CUPÓN UNICO:
@@ -294,7 +294,7 @@ public class CuponServicioImp implements CuponServicio {
 
         /**
          * =================================================================================
-         * 📌 VALIDACIÓN DEL TIPO DE CUPÓN (MANEJO DE NULL)
+         *  VALIDACIÓN DEL TIPO DE CUPÓN (MANEJO DE NULL)
          * =================================================================================
 
          * IMPORTANTE:
@@ -327,7 +327,7 @@ public class CuponServicioImp implements CuponServicio {
         } else if (TipoCupon.INDIVIDUAL.equals(cupon.getTipo())) {
             /**
              * -----------------------------------------------------------------------------
-             * 🎟 CUPÓN INDIVIDUAL
+             *  CUPÓN INDIVIDUAL
              * -----------------------------------------------------------------------------
 
              * - Se valida que el cliente esté autorizado para redimir el cupón
@@ -342,7 +342,7 @@ public class CuponServicioImp implements CuponServicio {
         } else {
             /**
              * -----------------------------------------------------------------------------
-             * ⚠ TIPO DE CUPÓN NULO O INVÁLIDO
+             *  TIPO DE CUPÓN NULO O INVÁLIDO
              * -----------------------------------------------------------------------------
 
              * Si el tipo del cupón es null o no corresponde a ningún valor
@@ -356,7 +356,7 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 VERIFICAR DISPONIBILIDAD DE UN CUPÓN
+     *  VERIFICAR DISPONIBILIDAD DE UN CUPÓN
      * =================================================================================
 
      * Este método se encarga de validar si un cupón puede ser utilizado.
@@ -368,14 +368,14 @@ public class CuponServicioImp implements CuponServicio {
 
      * Flujo del método:
 
-     * 1️⃣ Se busca el cupón por su código en el repositorio
+     * 1️ Se busca el cupón por su código en el repositorio
      *     - Si NO existe → retorna false
 
-     * 2️⃣ Si existe, se valida:
+     * 2️ Si existe, se valida:
      *     - Estado == DISPONIBLE
      *     - Fecha de vencimiento > fecha actual
 
-     * 3️⃣ Si ambas condiciones se cumplen → retorna true
+     * 3️ Si ambas condiciones se cumplen → retorna true
      *    En cualquier otro caso → retorna false
      *
      * @param codigoCupon Código del cupón a validar
@@ -402,7 +402,7 @@ public class CuponServicioImp implements CuponServicio {
     /**
      *
      * =================================================================================
-     * 📌 MÉTODO AUXILIAR
+     *  MÉTODO AUXILIAR
      * =================================================================================
 
      * =================================================================================
@@ -426,10 +426,10 @@ public class CuponServicioImp implements CuponServicio {
     /**
      *
      * =================================================================================
-     * 📌 MÉTODO AUXILIAR
+     *  MÉTODO AUXILIAR
      * =================================================================================
 
-     * 📌 VALIDACIÓN DE EXISTENCIA DE NOMBRE DE CUPÓN
+     *  VALIDACIÓN DE EXISTENCIA DE NOMBRE DE CUPÓN
      * =================================================================================
 
      * Método auxiliar que valida si ya existe un cupón
@@ -448,19 +448,19 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 LISTAR CUPONES DISPONIBLES
+     *  LISTAR CUPONES DISPONIBLES
      * =================================================================================
 
      * Este método obtiene todos los cupones que pueden ser utilizados.
 
      * Reglas aplicadas:
-     * ✔ El cupón debe estar en estado DISPONIBLE
-     * ✔ La fecha de vencimiento debe ser posterior a la fecha actual
+     * - El cupón debe estar en estado DISPONIBLE
+     * - La fecha de vencimiento debe ser posterior a la fecha actual
 
      * Flujo del método:
-     * 1️⃣ Se consultan todos los cupones almacenados
-     * 2️⃣ Se filtran únicamente los cupones válidos
-     * 3️⃣ Cada entidad Cupon se transforma en un ItemCuponDTO
+     * 1️ Se consultan todos los cupones almacenados
+     * 2️ Se filtran únicamente los cupones válidos
+     * 3️ Cada entidad Cupon se transforma en un ItemCuponDTO
      *
      * @return Lista de cupones disponibles en formato ItemCuponDTO
      */
@@ -481,14 +481,14 @@ public class CuponServicioImp implements CuponServicio {
 
     /**
      * =================================================================================
-     * 📌 LISTAR CUPONES DISPONIBLES PARA UN CLIENTE
+     *  LISTAR CUPONES DISPONIBLES PARA UN CLIENTE
      * =================================================================================
 
      * Este método retorna los cupones que un cliente puede usar.
 
      * Reglas aplicadas:
-     * ✔ El cupón debe estar DISPONIBLE
-     * ✔ El cupón no debe estar vencido
+     * - El cupón debe estar DISPONIBLE
+     * - El cupón no debe estar vencido
 
      * Condiciones por tipo:
      * - UNICO:
@@ -498,9 +498,9 @@ public class CuponServicioImp implements CuponServicio {
      *     → El cliente debe estar incluido en la lista de beneficiarios
 
      * Flujo del método:
-     * 1️⃣ Se consultan todos los cupones
-     * 2️⃣ Se filtran los cupones válidos según reglas de negocio
-     * 3️⃣ Se transforman en ItemCuponDTO
+     * 1️ Se consultan todos los cupones
+     * 2️ Se filtran los cupones válidos según reglas de negocio
+     * 3️ Se transforman en ItemCuponDTO
      *
      * @param listarCuponDTO DTO que contiene el id del cliente
      * @return Lista de cupones disponibles para el cliente

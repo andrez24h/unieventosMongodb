@@ -5,7 +5,7 @@ import dev.andresm.unieventosMongodb.dto.cupon.*;
 import java.util.List;
 
 /**
- * 🔹 Servicio de gestión de cupones.
+ *  Servicio de gestión de cupones.
  * Define las operaciones relacionadas con:
  * - Creación y actualización de cupones
  * - Eliminación de cupones
@@ -50,7 +50,20 @@ public interface CuponServicio {
     boolean redimirCupon(RedimirCuponDTO redimirCuponDTO) throws Exception;
 
     /**
-     * 🔹 Listar todos los cupones registrados en el sistema.
+     *  Verificar si un cupón está disponible.
+
+     * Un cupón es válido cuando:
+     * - Existe
+     * - Está DISPONIBLE
+     * - No está vencido
+     *
+     * @param codigoCupon código del cupón
+     * @return true si puede ser usado, false en caso contrario
+     */
+    boolean verificarDisponibilidadCupon(String codigoCupon);
+
+    /**
+     *  Listar todos los cupones registrados en el sistema.
      *
      * @return lista resumida de cupones
      */
