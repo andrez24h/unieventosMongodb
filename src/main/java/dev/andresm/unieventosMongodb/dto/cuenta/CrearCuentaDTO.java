@@ -18,5 +18,4 @@ public record CrearCuentaDTO (
         @NotBlank @Length(max = 100) String nombre, // Nombre no puede estar vacío y tiene un máximo de 100 caracteres
         @NotBlank @Length(min = 7, max = 20) String password, // Contraseña debe tener entre 7 y 20 caracteres
         @NotEmpty @Size(min = 1) List<String> telefonos//  @NotBlank → solo String // @NotEmpty → listas // La lista de teléfonos no puede estar vacía, aunque la longitud de cada teléfono puede estar controlada en otro lugar
-) {
-}
+) {}
