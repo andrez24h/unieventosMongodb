@@ -147,7 +147,7 @@ public class CuentaServicioImp implements CuentaServicio {
     }
 
     /**
-     * 🔹 Genera un código aleatorio alfanumérico.
+     * - Genera un código aleatorio alfanumérico.
      * Se utiliza para activación de cuenta y recuperación de contraseña.
      *
      * @return Código de verificación generado.

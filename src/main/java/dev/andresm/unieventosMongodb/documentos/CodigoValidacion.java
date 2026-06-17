@@ -8,14 +8,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 
 public class CodigoValidacion {
 
-    @Id
-    @EqualsAndHashCode.Include
     private String codigo;
-
     private LocalDateTime fechaCreacion;
 }

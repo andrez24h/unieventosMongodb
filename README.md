@@ -4,6 +4,7 @@ Backend del sistema **UniEventos**, una plataforma para la venta de entradas a c
 Este repositorio corresponde **exclusivamente al backend**, desarrollado como parte de un proyecto académico y utilizado como **portafolio profesional backend**.
 
 ##  Objetivo del proyecto
+
 Demostrar habilidades en:
 - Diseño de lógica de negocio
 - Arquitectura backend con Spring Boot
@@ -30,13 +31,14 @@ Demostrar habilidades en:
 
 **UniEventos** permite a los clientes registrarse, autenticarse y comprar entradas para eventos, aplicando cupones de descuento y recibiendo notificaciones por correo electrónico.
 
-El sistema maneja dos tipos de usuarios:
+##  El sistema maneja dos tipos de usuarios:
 - **Administrador**
 - **Cliente**
 
 ---
 
 ##  Servicios implementados
+
 
 ###  Servicio de Cuenta
 - Registro y activación de cuentas
@@ -71,7 +73,7 @@ El sistema maneja dos tipos de usuarios:
 ---
 
 ##  Pruebas
-El proyecto incluye **pruebas unitarias** para los servicios principales utilizando **JUnit**.
+- El proyecto incluye **pruebas unitarias** para los servicios principales utilizando **JUnit**.
 
 ---
 
@@ -88,7 +90,7 @@ Este backend tendrá **dos versiones independientes**:
 -  Versión actual: **MongoDB (NoSQL)**
 -  Próxima versión: **MySQL (SQL / Relacional)**
 
-El objetivo es demostrar dominio tanto de:
+## El objetivo es demostrar dominio tanto de:
 - Modelos **no relacionales**
 - Modelos **relacionales**
 - Adaptación de la lógica de negocio a distintos motores de base de datos
