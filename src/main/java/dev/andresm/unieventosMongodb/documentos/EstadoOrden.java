@@ -13,6 +13,7 @@ package dev.andresm.unieventosMongodb.documentos;
  * y el estado de la transacción asociada.
  */
 public enum EstadoOrden {
+
     CREADA,     // Orden recién generada
     PENDIENTE,  // Esperando confirmación de pago
     PAGADA,     // Pago aprobado

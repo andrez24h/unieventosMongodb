@@ -10,7 +10,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 
 /**
@@ -33,8 +32,6 @@ public class Reporte {
     /**
      * Identificador único del reporte.
      */
-    @Id
-    @EqualsAndHashCode.Include
     private String id;
 
     /**

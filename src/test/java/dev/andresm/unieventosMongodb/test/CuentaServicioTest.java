@@ -124,10 +124,10 @@ public class CuentaServicioTest {
         // Se usa el patrón Builder para crear CrearCuentaDTO.
         CrearCuentaDTO crearCuentaDTO = CrearCuentaDTO.builder()
 
-                .cedula("9737737")
+                .cedula("9738738")
                 .direccion("Armenia")
-                .email("andres24h@hotmail.com")
-                .nombre("Hernandez")
+                .email("andres@email.com")
+                .nombre("Mauricio")
                 .password("12345")
                 .telefonos(List.of("3117188224", "3105862354"))
                 .build();
@@ -148,7 +148,7 @@ public class CuentaServicioTest {
 
         // 5. Validar que el nombre se haya guardado correctamente
         Assertions.assertEquals(
-                "Hernandez",
+                "Mauricio",
                 guardado.getUsuario().getNombre(),
                 "El nombre no coincide."
         );
@@ -174,8 +174,8 @@ public class CuentaServicioTest {
 
         // 1. Construir el DTO con los datos necesarios
         ActivarCuentaDTO activarCuentaDTO = new ActivarCuentaDTO(
-                "andres24h@hotmail.com",   // email real en tu BD
-                      "sZwTIpyvMo"               // código real que viste en Mongo
+                "andres@email.com",   // email real en tu BD
+                      "Rw1wpEC7dt"               // código real que viste en Mongo
         );
 
         // 2. Ejecutar el servicio de activación
@@ -185,7 +185,7 @@ public class CuentaServicioTest {
         Assertions.assertTrue(resultado, "La cuenta debería activarse correctamente");
 
         // 4. Obtener la cuenta actualizada desde la base de datos
-        Cuenta cuenta = cuentaServicio.obtenerEmail("andrez24h@gmail.com");
+        Cuenta cuenta = cuentaServicio.obtenerEmail("amhernandezp@uqvirtua.edu.co");
 
         // 5. Verificar que el estado cambió a ACTIVO
         Assertions.assertEquals(EstadoCuenta.ACTIVO, cuenta.getEstado(), "La cuenta debe quedar ACTIVA");
@@ -437,7 +437,7 @@ public class CuentaServicioTest {
                 .cantidad(2)
                 .nombreLocalidad("VIP")
                 .idEvento("69f192114913552c261075f4")
-                .idUsuario("69e80ac52986d11fca740685")
+                .idUsuario("6a3beeccddc541643b9a9d67")
                 .fecha(LocalDateTime.now())
                 .build();
 

@@ -24,7 +24,7 @@ public class EventoServicioTest {
 
     /**
      * Prueba para crear un evento real en MongoDB.
-     * <p>
+
      * Validaciones:
      * 1. No debe lanzar excepción.
      * 2. Debe retornar un ID válido.
@@ -37,7 +37,7 @@ public class EventoServicioTest {
         List<Localidad> localidades = List.of(
                 Localidad.builder()
                         .nombre("VIP")
-                        .precio(200000)
+                        .precio(250000)
                         .capacidadMaxima(100)
                         .entradasVendidas(0)
                         .porcentajeVenta(0)
@@ -45,16 +45,16 @@ public class EventoServicioTest {
 
                 Localidad.builder()
                         .nombre("GENERAL")
-                        .precio(100000)
-                        .capacidadMaxima(150)
+                        .precio(150000)
+                        .capacidadMaxima(200)
                         .entradasVendidas(0)
                         .porcentajeVenta(0)
                         .build(),
 
                 Localidad.builder()
                         .nombre("PLATEA")
-                        .precio(150000)
-                        .capacidadMaxima(120)
+                        .precio(185000)
+                        .capacidadMaxima(155)
                         .entradasVendidas(0)
                         .porcentajeVenta(0)
                         .build()
@@ -62,13 +62,13 @@ public class EventoServicioTest {
 
         // 2. Crear DTO con Builder
         CrearEventoDTO dto = CrearEventoDTO.builder()
-                .idUsuario("69e80ac52986d11fca740685") // 👈 ID REAL
-                .nombre("Concierto Test")
-                .direccion("Calle 123")
+                .idUsuario("6a3bf03bebe52f1664cf6fe4") // 👈 ID REAL
+                .nombre("Festival Rock Armenia 2026")
+                .direccion("Centro de Convenciones Armenia")
                 .ciudad("Armenia")
-                .descripcion("Evento de prueba")
-                .imagenPortada("img1.jpg")
-                .imagenLocalidades("img2.jpg")
+                .descripcion("Festival de rock con bandas nacionales")
+                .imagenPortada("rock-portada.jpg")
+                .imagenLocalidades("rock-localidades.jpg")
                 .tipo(TipoEvento.CONCIERTO)
                 .estado(EstadoEvento.ACTIVO)
                 .ubicacion(new Ubicacion(4.53, -75.67))
@@ -89,7 +89,7 @@ public class EventoServicioTest {
 
     /**
      * Prueba para editar un evento existente.
-     * <p>
+
      * Nota:
      * Debes copiar un ID real desde Mongo Express.
      */

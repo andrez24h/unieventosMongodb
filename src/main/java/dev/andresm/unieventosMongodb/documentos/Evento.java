@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Document("eventos")
 @Getter
 @Setter
@@ -34,7 +33,6 @@ public class Evento implements Serializable {
     private TipoEvento tipo;
     private LocalDateTime fecha;
     private List<Localidad> localidades = new ArrayList<>();
-
 
     @Builder
     public Evento(String idUsuario, String nombre, String descripcion, Ubicacion ubicacion,

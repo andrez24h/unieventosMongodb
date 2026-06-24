@@ -2,13 +2,15 @@ package dev.andresm.unieventosMongodb.documentos;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@ToString
 
-public class Ubicacion {
+public class Ubicacion implements Serializable {
 
     private double latitud;
     private double longitud;
