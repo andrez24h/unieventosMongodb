@@ -15,10 +15,10 @@ import java.util.Optional;
 public interface EventoRepo extends MongoRepository<Evento, String> {
 
     /**
-     * 🔹 Buscar evento por ID.
+     * Buscar evento por ID.
      * Se utiliza _id porque MongoDB maneja el identificador
      * principal con ese nombre internamente.
-     *
+
      * @param id Identificador del evento
      * @return Evento si existe
      */
@@ -26,10 +26,10 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     Optional<Evento> buscarId(String id);
 
     /**
-     * 🔹 Buscar evento por tipo.
+     * Buscar evento por tipo.
      * Ejemplo de tipos:
      * CONCIERTO, TEATRO, DEPORTE, CONFERENCIA, etc.
-     *
+
      * @param tipo Tipo del evento
      * @return Evento encontrado
      */
@@ -38,7 +38,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             TipoEvento tipo);
 
     /**
-     * 🔹 Buscar evento por ciudad exacta.
+     * Buscar evento por ciudad exacta.
      *
      * @param ciudad Ciudad del evento
      * @return Evento encontrado
@@ -48,8 +48,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             String ciudad);
 
     /**
-     * 🔹 Buscar evento por nombre exacto.
-     *
+     * Buscar evento por nombre exacto.
+
      * @param nombre Nombre completo del evento
      * @return Evento encontrado
      */
@@ -57,7 +57,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     Optional<Evento> buscarPorNombre(String nombre);
 
     /**
-     * - Verificar si existe OTRO evento con el mismo nombre,
+     * Verificar si existe OTRO evento con el mismo nombre,
      * excluyendo un ID específico.
 
      * Se utiliza principalmente en la edición de eventos para validar
@@ -77,10 +77,10 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     Optional<Evento> buscarPorNombreIdDiferente(String nombre, String id);
 
     /**
-     * 🔹 Buscar evento por nombre parcial (LIKE).
+     * Buscar evento por nombre parcial (LIKE).
      * Se usa una expresión regular con opción 'i'
-     * para hacer la búsqueda insensible a mayúsculas.
-     *
+        para hacer la búsqueda insensible a mayúsculas.
+
      * @param nombre Parte del nombre del evento
      * @return Evento encontrado
      */
@@ -89,8 +89,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             String nombre);
 
    /**
-     * 🔹 Buscar evento por nombre y ciudad.
-     *
+     * Buscar evento por nombre y ciudad.
+
      * @param nombre Nombre del evento
      * @param ciudad Ciudad donde se realiza
      * @return Evento encontrado
@@ -101,11 +101,11 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             String ciudad);
 
     /**
-     * 🔹 Buscar eventos dentro de un rango de fechas.
+     * Buscar eventos dentro de un rango de fechas.
      * Usa operadores MongoDB:
      * - $gte → mayor o igual
      * - $lte → menor o igual
-     *
+
      * @param inicio Fecha inicial
      * @param fin Fecha final
      * @return Evento encontrado
@@ -116,8 +116,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             LocalDateTime fin);
 
     /**
-     * 🔹 Buscar eventos por rango de fechas y ciudad.
-     *
+     *  Buscar eventos por rango de fechas y ciudad.
+
      * @param inicio Fecha inicial
      * @param fin Fecha final
      * @param ciudad Ciudad del evento
@@ -130,8 +130,8 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             String ciudad);
 
     /**
-     * 🔹 Buscar eventos por rango de fechas y tipo.
-     *
+     * Buscar eventos por rango de fechas y tipo.
+
      * @param inicio Fecha inicial
      * @param fin Fecha final
      * @param tipo Tipo de evento
@@ -144,9 +144,9 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             TipoEvento tipo);
 
     /**
-     * 🔹 Buscar eventos por rango de fechas, tipo y ciudad.
+     * Buscar eventos por rango de fechas, tipo y ciudad.
      * Consulta avanzada usada para filtros combinados.
-     *
+
      * @param inicio Fecha inicial
      * @param fin Fecha final
      * @param tipo Tipo de evento
@@ -162,7 +162,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     );
 
     /**
-     * 🔹 Buscar eventos por tipo y ciudad.
+     * Buscar eventos por tipo y ciudad.
      *
      * @param tipo Tipo del evento
      * @param ciudad Ciudad del evento
@@ -174,7 +174,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
             String ciudad);
 
     /**
-     * 🔹 Listar todos los eventos registrados.
+     * Listar todos los eventos registrados.
      * Retorna todos los documentos de la colección evento.
      *
      * @return Lista de eventos
@@ -185,7 +185,7 @@ public interface EventoRepo extends MongoRepository<Evento, String> {
     /**
      * - Buscar eventos disponibles para clientes.
 
-     * Se retornan únicamente los eventos que:
+     * - Se retornan únicamente los eventos que:
      * - Están en estado ACTIVO
      * - Tienen una fecha mayor a la actual
 

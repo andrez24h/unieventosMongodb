@@ -1,6 +1,6 @@
-# UniEventos – Backend (Spring Boot & MongoDB)
+# Unieventos – Backend (Spring Boot & MongoDB)
 
-Backend del sistema **UniEventos**, una plataforma para la venta de entradas a conciertos y eventos en distintas ciudades de Colombia.  
+Backend del sistema **Unieventos**, una plataforma para la venta de entradas a conciertos y eventos en distintas ciudades de Colombia.  
 Este repositorio corresponde **exclusivamente al backend**, desarrollado como parte de un proyecto académico y utilizado como **portafolio profesional backend**.
 
 ##  Objetivo del proyecto

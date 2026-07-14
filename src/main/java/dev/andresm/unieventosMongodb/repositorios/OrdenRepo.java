@@ -19,7 +19,7 @@ import java.util.Optional;
 public interface OrdenRepo extends MongoRepository<Orden, String> {
 
     /**
-     * - Buscar una orden por su ID.
+     * Buscar una orden por su ID.
      * Se usa _id porque MongoDB maneja el identificador con ese nombre.
      */
     @Query("{ _id: ?0 }")
@@ -27,7 +27,7 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
 
     /**
      * Obtiene todas las órdenes asociadas a un cliente específico.
-     *
+
      * @param idCliente ID del cliente
      * @return Lista completa de órdenes
      */
@@ -35,19 +35,19 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
     List<Orden> buscarOrdenesPorCliente(String idCliente);
 
     /**
-     * - Buscar una orden por el código devuelto por la pasarela de pago.
+     *  Buscar una orden por el código devuelto por la pasarela de pago.
      */
     @Query("{ codigoPasarela: ?0 }")
     Optional<Orden> buscarPorCodigoPasarela(String codigoPasarela);
 
     /**
-     * 🔹 Obtener todas las órdenes asociadas a un cupón.
+     *  Obtener todas las órdenes asociadas a un cupón.
      */
     @Query("{ idCupon: ?0 }")
     List<Orden> buscarPorCupon(String idCupon);
 
     /**
-     * - Listar órdenes realizadas dentro de un rango de fechas.
+     *  Listar órdenes realizadas dentro de un rango de fechas.
      */
     @Query("{ fecha: { $gte: ?0, $lte: ?1 } }")
     List<Orden> buscarPorRangoFechas(LocalDateTime inicio, LocalDateTime fin);
@@ -67,7 +67,7 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
      * 4. Se proyectan únicamente los campos necesarios para el DTO.
 
      * ============================
-     * ⚠️ IMPORTANTE (TIPOS DE DATOS)
+     *  IMPORTANTE (TIPOS DE DATOS)
      * ============================
      * - Orden.idCliente es String
      * - Cuenta._id es ObjectId
@@ -175,63 +175,3 @@ public interface OrdenRepo extends MongoRepository<Orden, String> {
     @Query("{ 'items.idEvento': ?0 }")
     List<Orden> buscarOrdenesPorEvento(String idEvento);
 }
-/*
-================================================================================
-📌 EXPLICACIÓN DEL @Aggregation (PASO A PASO)
-================================================================================
-
-1️⃣ { $match: { idCliente: ?0 } }
-
-   - Filtra las órdenes.
-   - Solo se seleccionan las órdenes cuyo idCliente
-     coincide con el parámetro recibido en el método.
-   - Es equivalente a:
-       SELECT * FROM ordenes WHERE idCliente = ?
-
---------------------------------------------------------------------------------
-
-2️⃣ { $lookup: { from: 'cuentas', localField: 'idCliente',
-                 foreignField: '_id', as: 'cuenta' } }
-
-   - Realiza una "unión" (JOIN) entre colecciones.
-   - Busca en la colección "cuentas" el documento
-     cuyo _id sea igual a idCliente.
-   - El resultado se guarda en un arreglo llamado "cuenta".
-
---------------------------------------------------------------------------------
-
-3️⃣ { $unwind: '$cuenta' }
-
-   - Convierte el arreglo "cuenta" en un objeto.
-   - Como cada orden pertenece a una sola cuenta,
-     se elimina el formato de lista para facilitar el acceso.
-
---------------------------------------------------------------------------------
-
-4️⃣ { $project: { ... } }
-
-   - Define exactamente qué campos se devuelven.
-   - Optimiza la consulta evitando enviar datos innecesarios.
-   - Se devuelven:
-       ✔ fecha de la orden
-       ✔ total de la orden
-       ✔ estado del pago
-       ✔ nombre del usuario
-       ✔ correo del usuario
-
-   - Los nombres proyectados deben coincidir con los
-     atributos definidos en ItemOrdenDTO.
-
-================================================================================
-📌 ¿POR QUÉ USAR ESTO?
-================================================================================
-
-✔ Evita múltiples consultas a la base de datos
-✔ Reduce datos enviados al frontend
-✔ Mantiene separadas las entidades del modelo de vista
-✔ Mejora rendimiento y escalabilidad
-✔ Patrón profesional usado en producción
-
-================================================================================
-*/
-

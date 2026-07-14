@@ -28,8 +28,8 @@ import java.time.LocalDateTime;
  * @param rol Rol de la cuenta (ADMINISTRADOR o CLIENTE).
  * @param estadoCuenta Estado actual de la cuenta.
  */
-
 public record ItemOrdenDTO(
+
         String idOrden,
         LocalDateTime fecha,
         double total,

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 🔹 Repositorio para la gestión de cupones.
+ * Repositorio para la gestión de cupones.
  * Proporciona métodos de acceso a datos para la colección
  * de cupones en MongoDB.
  */
@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface CuponRepo extends MongoRepository<Cupon, String> {
 
     /**
-     * 🔹 Buscar un cupón por su identificador.
+     * Buscar un cupón por su identificador.
      *
      * @param id identificador del cupón
      * @return Optional con el cupón si existe
@@ -26,8 +26,8 @@ public interface CuponRepo extends MongoRepository<Cupon, String> {
     Optional<Cupon> buscarId(String id);
 
     /**
-     * 🔹 Buscar un cupón por su código.
-     *
+     * Buscar un cupón por su código.
+
      * @param codigo código único del cupón
      * @return Optional con el cupón si existe
      */
@@ -35,8 +35,8 @@ public interface CuponRepo extends MongoRepository<Cupon, String> {
     Optional<Cupon> buscarCodigo(String codigo);
 
     /**
-     * 🔹 Buscar un cupón por su nombre.
-     *
+     * Buscar un cupón por su nombre.
+
      * @param nombre nombre del cupón
      * @return Optional con el cupón si existe
      */
@@ -44,8 +44,8 @@ public interface CuponRepo extends MongoRepository<Cupon, String> {
     Optional<Cupon> buscarNombre(String nombre);
 
     /**
-     * 🔹 Buscar cupones asociados a un beneficiario.
-     *
+     * Buscar cupones asociados a un beneficiario.
+
      * @param beneficiarios identificador del beneficiario
      * @return lista de cupones asociados
      */
