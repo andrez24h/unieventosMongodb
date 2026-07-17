@@ -1,7 +1,9 @@
 package dev.andresm.unieventosMongodb.dto.cupon;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record RevertirCuponDTO(
-        String codigoCupon,
-        String idCliente
-) {
-}
+
+        @NotBlank String codigoCupon,
+        @NotBlank String idCliente
+) {}

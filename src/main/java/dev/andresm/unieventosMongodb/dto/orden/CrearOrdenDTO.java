@@ -1,5 +1,7 @@
 package dev.andresm.unieventosMongodb.dto.orden;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * DTO utilizado para solicitar la creación de una nueva orden.
 
@@ -10,6 +12,7 @@ package dev.andresm.unieventosMongodb.dto.orden;
  * @param codigoCupon Código de cupón opcional aplicado a la orden.
  */
 public record CrearOrdenDTO(
-        String idCliente,
-        String codigoCupon
+
+        @NotBlank String idCliente,
+        @NotBlank String codigoCupon
 ) {}

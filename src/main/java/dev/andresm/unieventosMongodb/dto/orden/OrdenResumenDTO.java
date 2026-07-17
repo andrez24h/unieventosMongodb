@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
  * @param estadoCuenta Estado actual de la cuenta.
  */
 public record OrdenResumenDTO(
+
         String idOrden,
         LocalDateTime fecha,
         double total,

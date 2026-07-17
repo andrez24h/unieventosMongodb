@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Servicio encargado de la lógica de negocio relacionada con las cuentas.
- * Gestiona:
+ * - Servicio encargado de la lógica de negocio relacionada con las cuentas.
+ * - Gestiona:
  * - Registro y activación de cuentas
  * - Autenticación y generación de tokens
  * - Actualización y eliminación de cuentas

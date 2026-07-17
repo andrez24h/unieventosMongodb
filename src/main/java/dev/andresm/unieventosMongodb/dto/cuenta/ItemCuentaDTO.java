@@ -12,5 +12,4 @@ public record ItemCuentaDTO  (
         @NotBlank String email,
         @NotBlank String nombre,
         List<String> telefonos
-) {
-}
+) {}

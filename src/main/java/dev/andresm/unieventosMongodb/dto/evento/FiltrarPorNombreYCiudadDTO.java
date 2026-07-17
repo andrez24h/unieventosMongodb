@@ -1,7 +1,9 @@
 package dev.andresm.unieventosMongodb.dto.evento;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record FiltrarPorNombreYCiudadDTO(
-        String nombre,
-        String ciudad
-) {
-}
+
+        @NotBlank String nombre,
+        @NotBlank String ciudad
+) {}

@@ -1,6 +1,8 @@
 package dev.andresm.unieventosMongodb.dto.evento;
 
 import dev.andresm.unieventosMongodb.documentos.TipoEvento;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
@@ -34,8 +36,9 @@ import java.time.LocalDate;
  *              (desde 00:00:00 hasta 23:59:59).
  */
 public record FiltroEventoDTO(
-        String nombre,
-        TipoEvento tipo,
-        String ciudad,
-        LocalDate fecha
+
+        @NotBlank String nombre,
+        @NotNull TipoEvento tipo,
+        @NotBlank String ciudad,
+        @NotNull LocalDate fecha
 ) {}

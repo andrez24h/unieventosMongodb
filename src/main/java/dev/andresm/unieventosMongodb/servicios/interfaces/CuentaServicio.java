@@ -8,7 +8,7 @@ import dev.andresm.unieventosMongodb.documentos.Cuenta;
 import java.util.List;
 
 /**
- * 🔹 Servicio de gestión de cuentas.
+ * - Servicio de gestión de cuentas.
  * - Define las operaciones relacionadas con:
  * - Registro y autenticación
  * - Activación y recuperación de cuenta

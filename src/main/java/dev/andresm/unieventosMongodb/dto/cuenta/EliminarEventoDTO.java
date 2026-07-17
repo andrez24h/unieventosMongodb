@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record EliminarEventoDTO(
+
         @NotBlank String idCliente,
         @NotNull String idDetalle
-) {
-}
+) {}

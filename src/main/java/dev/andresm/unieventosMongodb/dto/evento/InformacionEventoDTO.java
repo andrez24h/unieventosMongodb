@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record InformacionEventoDTO(
+
         String id,
         String nombre,
         String direccion,

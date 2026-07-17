@@ -20,5 +20,4 @@ public record ItemCarritoDTO(
         int cantidad,
         double precioUnitario,
         double subtotal
-) {
-}
+) {}

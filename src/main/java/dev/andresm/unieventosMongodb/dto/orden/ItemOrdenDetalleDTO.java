@@ -11,6 +11,7 @@ package dev.andresm.unieventosMongodb.dto.orden;
  * pueda renderizarlo directamente como imagen.
  */
 public record ItemOrdenDetalleDTO(
+
         String idEvento,
         int cantidad,
         double precioUnitario,

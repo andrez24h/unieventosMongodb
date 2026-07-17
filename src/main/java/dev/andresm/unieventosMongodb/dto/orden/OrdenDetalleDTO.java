@@ -21,6 +21,7 @@ import java.util.List;
  * entradas adquiridas.
  */
 public record OrdenDetalleDTO(
+
         String idOrden,
         String idCliente,
         LocalDateTime fecha,

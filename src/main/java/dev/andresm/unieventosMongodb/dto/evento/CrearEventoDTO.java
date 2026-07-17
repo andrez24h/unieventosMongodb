@@ -13,6 +13,7 @@ import java.util.List;
 
 @Builder
 public record CrearEventoDTO(
+
         @NotBlank String idUsuario,
         @NotBlank String nombre,
         @NotBlank String direccion,
@@ -24,6 +25,6 @@ public record CrearEventoDTO(
         @NotNull EstadoEvento estado,
         @NotNull Ubicacion ubicacion,
         @NotNull LocalDateTime fecha,
-        @NotNull List<Localidad> localidades
-        ) {}
+        List<Localidad> localidades
+) {}
 

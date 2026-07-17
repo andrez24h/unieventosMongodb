@@ -12,6 +12,7 @@ import java.util.List;
 
 @Builder
 public record EditarEventoDTO(
+
         @NotBlank String id,
         String nombre,
         String direccion,

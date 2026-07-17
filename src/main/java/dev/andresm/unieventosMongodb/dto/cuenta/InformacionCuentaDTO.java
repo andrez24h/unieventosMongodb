@@ -6,6 +6,7 @@ import java.util.List;
 
 @Builder
 public record InformacionCuentaDTO (
+
         String id,
         String cedula,
         String direccion,

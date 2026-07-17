@@ -13,8 +13,8 @@ import java.util.List;
  * - Lista de ítems agregados.
  */
 public record CarritoDTO(
+
         double total,
         LocalDateTime fecha,
         List<ItemCarritoDTO> items
-) {
-}
+) {}

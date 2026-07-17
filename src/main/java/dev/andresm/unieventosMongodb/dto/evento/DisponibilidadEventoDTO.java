@@ -9,8 +9,8 @@ package dev.andresm.unieventosMongodb.dto.evento;
  * @param cantidad         cantidad de entradas solicitadas
  */
 public record DisponibilidadEventoDTO(
+
         String idEvento,
         String nombreLocalidad,
         int cantidad
-) {
-}
+) {}

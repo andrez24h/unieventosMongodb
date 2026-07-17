@@ -1,5 +1,7 @@
 package dev.andresm.unieventosMongodb.dto.reportes;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * DTO utilizado para solicitar la generación de un reporte.
 
@@ -19,5 +21,5 @@ public record GenerarReporteDTO(
         /**
          * Identificador del evento sobre el cual se generará el reporte.
          */
-        String idEvento
+        @NotBlank String idEvento
 ) {}

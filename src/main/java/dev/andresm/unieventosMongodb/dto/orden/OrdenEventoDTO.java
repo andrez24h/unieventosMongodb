@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * @param total Valor total pagado.
  */
 public record OrdenEventoDTO(
+
         String idOrden,
         String idCliente,
         LocalDateTime fecha,

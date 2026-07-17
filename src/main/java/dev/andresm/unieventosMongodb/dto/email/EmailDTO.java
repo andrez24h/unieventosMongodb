@@ -7,6 +7,6 @@ import lombok.Builder;
 public record EmailDTO(
 
         @NotBlank String asunto,
-        String contenido,
-        @NotBlank String destinatario) {
-}
+        @NotBlank String contenido,
+        @NotBlank String destinatario
+) {}
