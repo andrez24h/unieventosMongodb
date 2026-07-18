@@ -618,7 +618,7 @@ public class CuentaServicioImp implements CuentaServicio {
     @Override
     public TokenDTO iniciarSesion(LoginDTO loginDTO) throws Exception {
 
-        // 1. Buscar la cuenta por email (uso de Optional como te gusta 👍)
+        // 1. Buscar la cuenta por email
         Optional<Cuenta> cuentaOptional = cuentaRepo.buscarEmail(loginDTO.email());
 
         // 2. Validar si la cuenta existe

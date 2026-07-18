@@ -8,8 +8,8 @@ import java.util.List;
 @Builder
 public record ItemCuentaDTO  (
 
-        @NotBlank String id,
-        @NotBlank String email,
-        @NotBlank String nombre,
+        String id,
+        String email,
+        String nombre,
         List<String> telefonos
 ) {}

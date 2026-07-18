@@ -18,5 +18,5 @@ public record TokenDTO (
          * Token JWT generado por el sistema.
          * No puede ser nulo ni vacío.
          */
-        @NotBlank String token
+        String token
 ) {}
